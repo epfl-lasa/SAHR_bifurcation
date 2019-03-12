@@ -1,0 +1,170 @@
+#include "parameters.h"
+
+
+Parameters::Parameters(int N) {
+
+    this->N = N;
+    // Set other parameters to default parameters:
+    this->rho0 = 1;
+    this->M = 1;
+    // Initialize arrays
+    //this->R = new float[N-1];
+    this->a = new float[N];
+    this->x0 = new float[N];
+    this->theta0 = new float[N];
+    //for(int i=0; i<N-1; i++)
+    //    this->R[i] = 1;
+    this-> R = 1;       // new R one-dimensional
+    for(int i=0; i<N; i++) {
+        this->a[i] = 1;
+        this->x0[i] = 0;
+        this->theta0[i] = 0;
+    }
+}
+
+Parameters::Parameters(int N, float rho0, float M, float R) {
+
+    this->N = N;
+    this->rho0 = rho0;
+    this->M = M;
+    // Initialize arrays
+    //this->R = new float[N-1];
+    this->a = new float[N];
+    this->x0 = new float[N];
+    this->theta0 = new float[N];
+    this->R = R;
+    // Set other parameters to default parameters:
+    for(int i=0; i<N; i++) {
+        this->a[i] = 1;
+        this->x0[i] = 0;
+        this->theta0[i] = 0;
+    }
+}
+
+Parameters::Parameters(int N, float rho0, float M, float R, float a[], float x0[]) {
+
+    this->N = N;
+    this->rho0 = rho0;
+    this->M = M;
+    // Initiliaze arrays
+    //this->R = new float[N-1];
+    this->a = new float[N];
+    this->x0 = new float[N];
+    this->theta0 = new float[N];
+    this->R = R;
+    this->a = a;
+    this->x0 = x0;
+    // Set other parameters to default parameters:
+    for(int i=0; i<N; i++) {
+        this->theta0[i] = 0;
+    }
+}
+
+
+Parameters::Parameters(int N, float rho0, float M, float R, float a[], float x0[], float theta0[]) {
+    
+    this->N = N;
+    this->rho0 = rho0;
+    this->M = M;
+    this->R = R;
+    // Initiliaze arrays
+    this->a = new float[N];
+    this->x0 = new float[N];
+    this->theta0 = new float[N];
+    this->a = a;
+    this->x0 = x0;
+    this->theta0 = theta0;
+}
+
+
+Parameters::~Parameters() {
+
+}
+
+/* Allows to set all parameters at a different time than at initialization (e.g. after optimization).
+ */
+void Parameters::setParameters(float rho0, float M, float R, float a[], float x0[], float theta0[]) {
+
+    this->rho0 = rho0;
+    this->M = M;
+    this->R = R;        // new R one-dimensional
+    for (int i=0; i<this->N; i++) {
+        //if (i < N-1)
+        //    this->R[i] = R[i];
+        this->a[i] = a[i];
+        this->x0[i] = x0[i];
+        this->theta0[i] = theta0[i];
+    } 
+}
+
+
+/* Allows to change radius rho0.
+ */
+void Parameters::changeRho0(float rho0) {
+    this->rho0 = rho0;
+}
+
+
+/* Allows to change mass M.
+ */
+void Parameters::changeM(float M) {
+    this->M = M;
+}
+
+
+/* Allows to change rotation R.
+ */
+void Parameters::changeR(float R) {
+    this->R = R;
+}
+
+/* Allows to change scaling a.
+ */
+void Parameters::changeA(float a[]) {
+    this->a = a;
+}
+
+/* Allows to change shift of origin x0.
+ */
+void Parameters::changeX0(float x0[]) {
+    this->x0 = x0;
+}
+
+/* Allows to change rotation angles around origin.
+ */
+void Parameters::changeTheta0(float theta0[]) {
+    this->theta0 = theta0;
+}
+
+
+/* Return each parameter.W
+ */
+int Parameters::getN() {
+    return this->N;
+}
+
+float Parameters::getRho0() {
+    return this->rho0;
+}
+
+float Parameters::getM() {
+    return this->M;
+}
+
+float Parameters::getR() {
+    return this->R;
+}
+
+float* Parameters::getA() {
+    return this->a;
+}
+
+float* Parameters::getX0() {
+    return this->x0;
+}
+
+float* Parameters::getTheta0() {
+    return this->theta0;
+}
+
+

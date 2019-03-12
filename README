@@ -1,0 +1,67 @@
+This package contains MATLAB and c++ code (packaged in a ROS node) for the project on:
+"Encoding and Switching Between Attractors and Limit Cycles Using Dynamical Systems With Bifurcations"
+
+
+To view an example and test the MATLAB algorithm, you can use the livescript "demo.mlx" in the MATLAB folder.
+
+
+To use the methods yourself, please consider:
+
+DATA:
+Data has size [M x dimensions N] and is stored in .csv files.
+By default, the format in the file is:
+[x_1, x_2, ..., x_N, time]
+If the .csv has other formats:
+[x_1,x_2,...,x_N,time] -- N (dimensions) should be provided to load data
+[time, x_1, x_2, ..., x_N] -- use flag timeAtBeginning=1 when loading data
+[time,x_1,x_2,...,x_N] -- both N and timeAtBeginning=1 should be provided
+
+
+PARAMETERS:
+rho0 -- radius; size 1
+M -- mass (influences speed and how far influence of limit set is felt); size 1
+R -- angular speed and direction; size 1
+a -- scaling; size N (# dimensions)
+x0 -- origin shift; size N (# dimensions)
+If N = 3 :
+theta0 -- rotation of frame, in Roll-Pitch-Yaw order; size 3
+
+
+DEPENDENCIES:
+The matlab code depends on toolboxes provided, which should be added to the path:
+- drtoolbox
+- GMR-dynamics-v2.0
+
+
+FUNCTIONS:
+
+MATLAB:
+    data:
+        [data, time] = loadData(filename, N, timeAtBeginning);
+        %% Provide .csv with data and load it to workspace.
+
+        [Xdata,Xvel,Rdata,Rvel,dt,T,N,m,begin] = prepareData(type,data,time,smoothing);
+        %% Gets loaded data and finds cartesian and spherical positions and velocities.
+
+        [] = plotData(Xdata,Xvel,Rdata,Rvel,T,m);
+        %% Allows to plot the data trajectories.
+
+        [] = saveData(filename, data, time);
+        %% Save data in a .csv file "filename" in the format: [x_1, x_2, ..., x_N, time].
+
+    toROS:
+        [] = saveToCfg(parameters);
+        %% Save parameters to configuration file for ROS package "bifurcation".
+
+    optimization:
+        [parameters] = optimizePars(initial_parameters, Xdata, dt, begin);
+        %% Performs optimization and returns struct of parameters.
+
+        [data2,transf] = dimreduce(data,method,opts);
+        %% Performs dimensionality reduction; requires drtoolbox.
+
+        gmm
+        %% Place Gaussian Model on data to find attractor/limit cycle location.
+
+ROS:
+
