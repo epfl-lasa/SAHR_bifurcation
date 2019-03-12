@@ -54,21 +54,22 @@ elseif(type == 3)
         start = 1;
         for i = 1:m
             for j = 1:N
-                data(start:sum(T(1:i))+i-1,j) = ...
-                    smooth(data(start:sum(T(1:i))+i-1,j),smoothing);
+                data(start:sum(T(1:i)),j) = ...
+                    smooth(data(start:sum(T(1:i)),j),smoothing);
             end
-            start = sum(T(1:i-1))+i+1;
+            start = sum(T(1:i))+1;
         end
     end
+    T = T-1;
     
     % Get positions and velocities
     Xdata = zeros(sum(T(1:m)),N);
     Xvel = zeros(sum(T(1:m)),N);
     start = 1;
     for i = 1:m
-        Xdata(start:sum(T(1:i)),:) = data(start+i:sum(T(1:i))+i,:);
-        Xvel(start:sum(T(1:i)),:) = diff(data(start+i:sum(T(1:i))+i,:)) ./ dt;
-        start = sum(T(1:i-1))+1;
+        Xdata(start:sum(T(1:i)),:) = data(start+(i-1):sum(T(1:i))+(i-1),:);
+        Xvel(start:sum(T(1:i)),:) = diff(data(start+(i-1):sum(T(1:i))+i,:)) ./ dt;
+        start = sum(T(1:i))+1;
     end
     
     % Find initial point of each trajectory
