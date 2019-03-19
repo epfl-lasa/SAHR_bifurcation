@@ -15,6 +15,7 @@ function plotGMM(Mu, Sigma, color, display_mode);
 %   o display_mode: Display mode (1 is used for a GMM, 2 is used for a GMR
 %                   with a 2D representation and 3 is used for a GMR with a
 %                   1D representation).
+%                   Display mode 4 used for 3D GMM plot (by Ilaria Lauzana)
 
 nbData = size(Mu,2);
 lightcolor = color + [0.6,0.6,0.6];
@@ -45,6 +46,24 @@ elseif display_mode==3
   end
   patch([Mu(1,1:end) Mu(1,end:-1:1)], [ymax(1:end) ymin(end:-1:1)], lightcolor, 'LineStyle', 'none');
   plot(Mu(1,:), Mu(2,:), '-', 'lineWidth', 3, 'color', color); 
+elseif display_mode==4      %% new mode for 3D plot of ellipsoid
+  for j=1:nbData
+    stdev = sqrtm(3.0.*Sigma(:,:,j));
+    E = zeros(20,20,3); % surf contours
+    theta = linspace(0,2*pi,20);
+    phi = linspace(0,pi,20);
+    v = [kron(cos(theta),sin(phi)); ...
+      kron(sin(theta),sin(phi)); ...
+      repmat(cos(phi),[1,20])]';
+    E_ij = bsxfun(@plus,Mu(:,j)',v*real(stdev));
+    for d = 1:3
+        E(:,:,d) = reshape(E_ij(:,d),[20,20]);
+    end
+    surf(E(:,:,1),E(:,:,2),E(:,:,3),...
+            'FaceColor',color,'FaceAlpha',0.5,'EdgeColor','none');
+    plot3(Mu(1,:), Mu(2,:), Mu(3,:), 'x', 'lineWidth', 2, 'color', color, ...
+        'HandleVisibility','off');
+  end
 end
 
 

@@ -5,6 +5,9 @@ if(~exist('timeAtBeginning','var'))
     timeAtBeginning = 0;
 end
 
+if(isempty(filename))
+    [filename,~] = uigetfile('*.csv');
+end
 fileID = fopen(filename,'r');
 
 delimiter = ',';
