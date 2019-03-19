@@ -1,5 +1,5 @@
 function [x] = hyper2cart(r)
-%HYPER2CART Transforms hyperspherical coordinates to cartesian
+%HYPER2CART Converts hyperspherical coordinates to cartesian
 % Inputs:
 %   r : MxN    hyperspherical coordinates (for M datapoints in N dim)
 % Output:

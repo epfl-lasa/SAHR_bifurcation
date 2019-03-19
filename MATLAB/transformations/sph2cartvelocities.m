@@ -1,5 +1,5 @@
 function [dx] = sph2cartvelocities(r,dr)
-%SPH2CARTVELOCITIES Transforms spherical velocities to cartesian
+%SPH2CARTVELOCITIES Converts spherical velocities to cartesian
 % Inputs:
 %   r : MxN     spherical coordinates (for M datapoints in N dim)
 %   dr : MxN    spherical velocities
