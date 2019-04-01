@@ -13,11 +13,6 @@ Bifurcation::Bifurcation(ros::NodeHandle &n, Parameters *p, float frequency) :
 	//this->xd = new float[p->getN()];     //initialized as Eigen::Vector3f
 	this->vd = new float[p->getN()];
 
-  if(_saveToFile == true){
-    myfile.open ("/home/lasapc28/catkin_ws/bagfiles/position.csv");
-    myfile << "time, x, y, z\n";
-  }
-
 	me = this;
 }
 
@@ -38,6 +33,18 @@ int Bifurcation::init(){
 	  // Wait for callback to be called
 		ros::spinOnce();
 		ROS_INFO("The ros node is ready.");
+
+    if(_saveToFile == true){
+      //float* theta0 = p->getTheta0();
+      float* a = p->getA();
+      std::string params = std::to_string(p->getRho0()) + "_" + std::to_string(p->getM()) + "_" + std::to_string(p->getR()) + \
+      "_a" + std::to_string(a[0]) + "_a" + std::to_string(a[1]) ; //+ "_th" + std::to_string(theta0[0]) + "_th" + std::to_string(theta0[1]) + \
+      "_th" + std::to_string(theta0[2]);
+      std::cout << params << std::endl;
+      myfile.open ("/home/lasapc28/catkin_ws/bagfiles/as_savefile/" + params + "_position.csv");
+      myfile << "time, x, y, z\n";
+    }
+
 		return 1;
 	}
 	else 
@@ -136,8 +143,11 @@ void Bifurcation::getPosVel(const geometry_msgs::Pose::ConstPtr& msg) {
 
 void Bifurcation::computeDesiredOrientation()
 {
-  float* theta0 = this->p->getTheta0();
-  Eigen::Matrix3f rotMat = eul2rotmat(theta0[0],theta0[1],theta0[2]);
+  //float* theta0 = this->p->getTheta0();
+  //Eigen::Matrix3f rotMat = eul2rotmat(theta0[0],theta0[1],theta0[2]);
+  // Get actual rotation matrix instead
+  Eigen::Matrix3f rotMat = this->p->getRotMat();
+
   // Compute rotation error between current orientation and plane orientation using Rodrigues' law
   Eigen::Vector3f k,temp;
   temp = -rotMat.col(2);
@@ -188,7 +198,8 @@ void Bifurcation::updatePosVel() {
   float R = this->p->getR();
   float* a = this->p->getA();
   float* x0 = this->p->getX0();
-  float* theta0 = this->p->getTheta0();
+  //float* theta0 = this->p->getTheta0();
+  Eigen::Matrix3f rotMat = this->p->getRotMat();
 
   float max_v = 0.5;
   float epsilon = 0.001;      // tolerance to avoid azimuth perturbations when "crossing" the origin
@@ -199,7 +210,7 @@ void Bifurcation::updatePosVel() {
   //std::cerr << "Current origin: " << x0[0] << ", " << x0[1] << ", " << x0[2] << std::endl; 
   //std::cerr << "Current rotation around origin: " << theta0[0] << ", " << theta0[1] << ", " << theta0[2] << std::endl; 
 
-  Eigen::Matrix3f rotMat = eul2rotmat(theta0[0],theta0[1],theta0[2]);
+  //Eigen::Matrix3f rotMat = eul2rotmat(theta0[0],theta0[1],theta0[2]);
   //std::cerr << "Rotation matrix: " << rotMat << std::endl; 
   float next_r[N], sphvel[N];
   Eigen::VectorXf x_shape(N);
@@ -248,7 +259,8 @@ void Bifurcation::updatePosVel() {
 void Bifurcation::dynamicReconfigureCallback(bifurcation::parametersDynConfig &config, uint32_t level) {
   ROS_INFO("Reconfigure request. Updating the parameters ...");
 
-  float anew[3], x0new[3], theta0new[3];
+  float anew[3], x0new[3]; //theta0new[3];
+  Eigen::Matrix3f rotMatnew;
   //float Rnew[2];
   //Rnew[0] = config.R_1;
   //Rnew[1] = config.R_2;
@@ -258,16 +270,20 @@ void Bifurcation::dynamicReconfigureCallback(bifurcation::parametersDynConfig &c
   x0new[0] = -config.x0_1;
   x0new[1] = -config.x0_2;
   x0new[2] = -config.x0_3;
-  theta0new[2] = config.theta0_1;   // angle around x
-  theta0new[1] = config.theta0_2;   // angle around y
-  theta0new[0] = config.theta0_3;   // angle around z
+  //theta0new[0] = config.theta0_3;   // angle around z
+  //theta0new[1] = config.theta0_2;   // angle around y
+  //theta0new[2] = config.theta0_1;   // angle around x
+  rotMatnew << config.rotMat_11, config.rotMat_12, config.rotMat_13,
+              config.rotMat_21, config.rotMat_22, config.rotMat_23,
+              config.rotMat_31, config.rotMat_32, config.rotMat_33;
 
   std::cerr << "Current radius and mass: " << config.rho0 << ", " << config.M << std::endl;
   std::cerr << "Current rotational speed: " << config.R << std::endl;
   std::cerr << "Current scaling: " << anew[0] << ", " << anew[1] << ", " << anew[2] << std::endl;
   std::cerr << "Current origin: " << x0new[0] << ", " << x0new[1] << ", " << x0new[2] << std::endl; 
-  std::cerr << "Current rotation around origin: " << theta0new[0] << ", " << theta0new[1] << ", " << theta0new[2] << std::endl; 
+  //std::cerr << "Current rotation around origin: " << theta0new[0] << ", " << theta0new[1] << ", " << theta0new[2] << std::endl; 
+  std::cerr << "Current rotation matrix: " << rotMatnew << std::endl;
 
-  this->p->setParameters(config.rho0, config.M, config.R, anew, x0new, theta0new);
+  this->p->setParameters(config.rho0, config.M, config.R, anew, x0new, rotMatnew);//theta0new);
 
 }

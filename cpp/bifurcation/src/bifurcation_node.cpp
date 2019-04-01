@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "bifurcation");
 
   ros::NodeHandle n;
-  float frequency = 200.0f;
+  float frequency = 100.0f;
   int N = 3;
 
   float rho0 = 0.2;

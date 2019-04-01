@@ -20,6 +20,7 @@ Parameters::Parameters(int N) {
         this->x0[i] = 0;
         this->theta0[i] = 0;
     }
+    this->rotMat = Eigen::Matrix3f::Identity(); 
 }
 
 Parameters::Parameters(int N, float rho0, float M, float R) {
@@ -39,6 +40,7 @@ Parameters::Parameters(int N, float rho0, float M, float R) {
         this->x0[i] = 0;
         this->theta0[i] = 0;
     }
+    this->rotMat = Eigen::Matrix3f::Identity(); 
 }
 
 Parameters::Parameters(int N, float rho0, float M, float R, float a[], float x0[]) {
@@ -58,6 +60,7 @@ Parameters::Parameters(int N, float rho0, float M, float R, float a[], float x0[
     for(int i=0; i<N; i++) {
         this->theta0[i] = 0;
     }
+    this->rotMat = Eigen::Matrix3f::Identity(); 
 }
 
 
@@ -74,6 +77,21 @@ Parameters::Parameters(int N, float rho0, float M, float R, float a[], float x0[
     this->a = a;
     this->x0 = x0;
     this->theta0 = theta0;
+    this->rotMat = Eigen::Matrix3f::Identity(); 
+}
+
+Parameters::Parameters(int N, float rho0, float M, float R, float a[], float x0[], Eigen::Matrix3f rotMat) {
+    
+    this->N = N;
+    this->rho0 = rho0;
+    this->M = M;
+    this->R = R;
+    // Initiliaze arrays
+    this->a = new float[N];
+    this->x0 = new float[N];
+    this->a = a;
+    this->x0 = x0;
+    this->rotMat = rotMat;
 }
 
 
@@ -97,6 +115,22 @@ void Parameters::setParameters(float rho0, float M, float R, float a[], float x0
     } 
 }
 
+/* Allows to set all parameters at a different time than at initialization (e.g. after optimization).
+ */
+void Parameters::setParameters(float rho0, float M, float R, float a[], float x0[], Eigen::Matrix3f rotMat) {
+
+    this->rho0 = rho0;
+    this->M = M;
+    this->R = R;        // new R one-dimensional
+    for (int i=0; i<this->N; i++) {
+        //if (i < N-1)
+        //    this->R[i] = R[i];
+        this->a[i] = a[i];
+        this->x0[i] = x0[i];
+    }
+    this->rotMat = rotMat;
+}
+
 
 /* Allows to change radius rho0.
  */
@@ -104,13 +138,11 @@ void Parameters::changeRho0(float rho0) {
     this->rho0 = rho0;
 }
 
-
 /* Allows to change mass M.
  */
 void Parameters::changeM(float M) {
     this->M = M;
 }
-
 
 /* Allows to change rotation R.
  */
@@ -135,6 +167,10 @@ void Parameters::changeX0(float x0[]) {
 void Parameters::changeTheta0(float theta0[]) {
     this->theta0 = theta0;
 }
+// Allows to change rotation matrix.
+void Parameters::changeRotMat(Eigen::Matrix3f rotMat) {
+    this->rotMat = rotMat;
+}   
 
 
 /* Return each parameter.W
@@ -167,4 +203,7 @@ float* Parameters::getTheta0() {
     return this->theta0;
 }
 
+Eigen::Matrix3f Parameters::getRotMat() {
+    return this->rotMat;
+}
 
