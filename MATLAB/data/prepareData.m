@@ -22,10 +22,14 @@ if (type == 1)
     % Get cartesian velocities
     Xvel = subvelocities(Xdata,dt,begin);
     
-elseif(type == 2)
+elseif(type == 2) || (type == 4)
     Xdata = data;
     m = 1;
-    dt = mean(diff(time));
+    if type == 2
+        dt = mean(diff(time));
+    else
+        dt = time;
+    end
     [T,N] = size(Xdata);
     
     % Smooth data if needed

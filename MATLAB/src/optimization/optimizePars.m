@@ -13,7 +13,11 @@ N = size(Xdata,2);
 % Build the vector of initial value of parameters for optimization
 par0 = [];
 if(isfield(init_params,'M'))
-    par0 = [par0 init_params.M];
+    if(isempty(init_params.M))
+        par0 = [par0 1];
+    else
+        par0 = [par0 init_params.M];
+    end
 else 
     par0 = [par0 1];
 end
@@ -46,10 +50,10 @@ range = [min(min(Xdata))-(min(min(Xdata))/10),...
     max(max(Xdata))+(max(max(Xdata))/10)];
 if(~isfield(init_params,'x0') || ~isempty(init_params.x0))
     lb = [0.001 0 -10*ones(1,1) ones(1,N) range(1)*ones(1,N)];
-    ub = [10 range(2) 10*ones(1,1) 10*ones(1,N) range(2)*ones(1,N)];
+    ub = [5 range(2) 10*ones(1,1) 10*ones(1,N) range(2)*ones(1,N)];
 else
     lb = [0.001 0 -10*ones(1,1) ones(1,N)];
-    ub = [10 range(2) 10*ones(1,1) 10*ones(1,N)];
+    ub = [5 range(2) 10*ones(1,1) 10*ones(1,N)];
 end
 
 % Functions to find spherical coordinates (considering scale and shift)
@@ -85,13 +89,25 @@ end
 [x_par,err1] = fmincon(obj1,par0,[],[],[],[],lb,ub,[],options);
 % Second objective
 if (~isfield(init_params,'x0') || ~isempty(init_params.x0))
-    obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),x_par(N+4:N*2+3))),...
+    if (isfield(init_params,'M') && isempty(init_params.M))
+        obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),x_par(N+4:N*2+3))),...
+            x_par(1),x_par(2),pars(3)) - ...
+            Rvelsth(Rvels(x_par(4:N+3),x_par(N+4:N*2+3))))^2;
+    else
+        obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),x_par(N+4:N*2+3))),...
         pars(1),x_par(2),pars(3)) - ...
         Rvelsth(Rvels(x_par(4:N+3),x_par(N+4:N*2+3))))^2;
+    end
 else
-    obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),zeros(1,N))),...
-        pars(1),x_par(2),pars(3)) - ...
-        Rvelsth(Rvels(x_par(4:N+3),zeros(1,N))))^2;
+    if (isfield(init_params,'M') && isempty(init_params.M))
+        obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),zeros(1,N))),...
+            x_par(1),x_par(2),pars(3)) - ...
+            Rvelsth(Rvels(x_par(4:N+3),zeros(1,N))))^2;
+    else
+        obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),zeros(1,N))),...
+            pars(1),x_par(2),pars(3)) - ...
+            Rvelsth(Rvels(x_par(4:N+3),zeros(1,N))))^2;
+    end
 end
 [x_par2,err2] = fmincon(obj2,x_par,[],[],[],[],lb,ub,[],options);
 % Third objective
@@ -114,13 +130,25 @@ while(steps < stepmax && (err1 > 0.01 || err2 > 0.01))
     [x_par,err1] = fmincon(obj1,x_par2,[],[],[],[],lb,ub,[],options);
     % Second objective
     if (~isfield(init_params,'x0') || ~isempty(init_params.x0))
-        obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),x_par(N+4:N*2+3))),...
-            pars(1),x_par(2),pars(3)) - ...
-            Rvelsth(Rvels(x_par(4:N+3),x_par(N+4:N*2+3))))^2;
+        if (isfield(init_params,'M') && isempty(init_params.M))
+            obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),x_par(N+4:N*2+3))),...
+                x_par(1),x_par(2),pars(3)) - ...
+                Rvelsth(Rvels(x_par(4:N+3),x_par(N+4:N*2+3))))^2;
+        else
+            obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),x_par(N+4:N*2+3))),...
+                pars(1),x_par(2),pars(3)) - ...
+                Rvelsth(Rvels(x_par(4:N+3),x_par(N+4:N*2+3))))^2;
+        end
     else
-        obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),zeros(1,N))),...
-            pars(1),x_par(2),pars(3)) - ...
-            Rvelsth(Rvels(x_par(4:N+3),zeros(1,N))))^2;
+        if (isfield(init_params,'M') && isempty(init_params.M))
+            obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),zeros(1,N))),...
+                x_par(1),x_par(2),pars(3)) - ...
+                Rvelsth(Rvels(x_par(4:N+3),zeros(1,N))))^2;
+        else
+            obj2 = @(pars) norm(dTheta(Rsrho(Rdatas(x_par(4:N+3),zeros(1,N))),...
+                pars(1),x_par(2),pars(3)) - ...
+                Rvelsth(Rvels(x_par(4:N+3),zeros(1,N))))^2;
+        end
     end
     [x_par2,err2] = fmincon(obj2,x_par,[],[],[],[],lb,ub,[],options);
     % Third objective (match direction)

@@ -5,7 +5,7 @@ function [] = plotData(Xdata,Xvel,Rdata,Rvel,T,m,type)
 %           Xvel: MxN velocities for Xdata
 %           Rdata: MxN datapoints in polar/spherical coordinates
 %           Rvel: MxN velocities for Rdata
-%           T: vector of indexes of initial points of m trajectories
+%           T: vector of sizes of each of the m trajectories
 %           m: number of trajectories
 %           type: decides what to plot; can be 'all', 'cart' or 'sph'
 
