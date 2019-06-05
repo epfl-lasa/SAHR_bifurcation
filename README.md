@@ -1,8 +1,10 @@
 This package contains MATLAB and c++ code (packaged in a ROS node) for the project on:
-"Encoding and Switching Between Attractors and Limit Cycles Using Dynamical Systems With Bifurcations"
+"Learning Dynamical Systems With Bifurcations"
 
 
 To view an example and test the MATLAB algorithm, you can use the livescript "demo.mlx" in the MATLAB folder.
+
+To test the dynamical system with learned parameters in MATLAB, run the code "plotDynamics.m" in the MATLAB/control_parameters folder.
 
 
 To use the methods yourself, please consider:

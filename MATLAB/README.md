@@ -3,6 +3,10 @@ MATLAB code for optimization of the DS.
 
 Structure:
 
+control_parameters:
+    plotDynamics.m : Run this GUI to test the parameters learned.
+
+
 data/
 	data_icub/	: Data humanoids (work in progress)
 	data_LfD/	: Data from kinesthetic trajectories
