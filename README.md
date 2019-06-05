@@ -1,5 +1,7 @@
 This package contains MATLAB and c++ code (packaged in a ROS node) for the project on:
-"Learning Dynamical Systems With Bifurcations"
+
+## "Learning Dynamical Systems With Bifurcations"
+
 
 
 To view an example and test the MATLAB algorithm, you can use the livescript "demo.mlx" in the MATLAB folder.
@@ -7,31 +9,52 @@ To view an example and test the MATLAB algorithm, you can use the livescript "de
 To test the dynamical system with learned parameters in MATLAB, run the code "plotDynamics.m" in the MATLAB/control_parameters folder.
 
 
+
 To use the methods yourself, please consider:
 
-DATA:
+## DATA:
+
 Data has size [M x dimensions N] and is stored in .csv files.
+
 By default, the format in the file is:
+
 [x_1, x_2, ..., x_N, time]
+
 If the .csv has other formats:
+
 [x_1,x_2,...,x_N,time] -- N (dimensions) should be provided to load data
+
 [time, x_1, x_2, ..., x_N] -- use flag timeAtBeginning=1 when loading data
+
 [time,x_1,x_2,...,x_N] -- both N and timeAtBeginning=1 should be provided
 
 
-PARAMETERS:
+
+## PARAMETERS:
+
 rho0 -- radius; size 1
+
 M -- mass (influences speed and how far influence of limit set is felt); size 1
+
 R -- angular speed and direction; size 1
+
 a -- scaling; size N (# dimensions)
+
 x0 -- origin shift; size N (# dimensions)
+
 Rrot -- rotation matrix (in Roll-Pitch-Yaw order for N=3); size NxN
 
 
-DEPENDENCIES:
+
+## DEPENDENCIES:
+
 The matlab code depends on toolboxes provided, which should be added to the path:
+
 - drtoolbox
+
 - GMR-dynamics-v2.0
+
 - DMP (for evaluation comparison)
+
 Copyright information in MATLAB/README.md.
 
