@@ -161,7 +161,7 @@ add_dependencies(move_to_desired_joints ${PROJECT_NAME}_gencpp)
 
 add_library(transformations src/transformations.cpp)
 add_library(parameters src/parameters.cpp)
-add_library(objectMocap src/objectMocap.cpp)
+# add_library(objectMocap src/objectMocap.cpp)
 target_link_libraries(parameters ${catkin_LIBRARIES} transformations)
 
 ## Declare a C++ library

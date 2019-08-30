@@ -40,6 +40,10 @@ int main(int argc, char **argv)
   n.subscribe<geometry_msgs::PoseStamped>("optitrack/Ilaria1/pose", 1, boost::bind(&updateOptitrackPose,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   n.subscribe<geometry_msgs::PoseStamped>("optitrack/Ilaria2/pose", 1, boost::bind(&updateOptitrackPose,_1,1),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   n.subscribe<geometry_msgs::PoseStamped>("optitrack/Ilaria3/pose", 1, boost::bind(&updateOptitrackPose,_1,2),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  while(ros::ok())
+  {
+    ros::spinOnce();
+  }
   std::cerr << o.position << std::endl;
   std::cerr << o.orientation << std::endl;
   ObjectMocap obj2(o.position,o.orientation);

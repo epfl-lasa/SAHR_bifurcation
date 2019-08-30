@@ -1,0 +1,13 @@
+- git: {local-name: robot-toolkit, uri: 'https://github.com/epfl-lasa/robot-toolkit.git'}
+
+- git:
+    local-name: kuka-lwr-ros
+    uri: https://github.com/epfl-lasa/kuka-lwr-ros.git
+
+- git:
+    local-name: utils
+    uri: https://github.com/walidAmanhoud/utils
+
+- git:
+    local-name: mocap_optitrack
+    uri: https://github.com/epfl-lasa/mocap_optitrack.git

@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<launch>
+
+    <include file="$(find mocap_optitrack)/launch/epfl_optitrack.launch">
+        <arg name="mocap_config_file"       value="$(find bifurcation)/config/optitrack_objects.yaml"/>
+  </include>
+
+</launch>
