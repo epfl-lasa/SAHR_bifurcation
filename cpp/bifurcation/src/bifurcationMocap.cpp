@@ -1,4 +1,4 @@
-#include "bifurcation.h"
+#include "bifurcationMocap.h"
 
 Bifurcation* Bifurcation::me = NULL;
 
@@ -257,23 +257,27 @@ void Bifurcation::updatePosVel() {
 }
 
 
-void Bifurcation::dynamicReconfigureCallback(bifurcation::parametersDynConfig &config, uint32_t level) {
+void Bifurcation::dynamicReconfigureCallback(bifurcation::mocapObjectsConfig &config, uint32_t level) {
   ROS_INFO("Reconfigure request. Updating the parameters ...");
 
-  float anew[3], x0new[3]; //theta0new[3];
+  if(!config.bif){  // attractor
+    this->p->changeRho0(0.0);
+  }
+  else {  // limit cycle
+    //change to original rho0     this->p->changeRho0();
+  }
+
+
+
+  /*
+  float anew[3], x0new[3];
   Eigen::Matrix3f rotMatnew;
-  //float Rnew[2];
-  //Rnew[0] = config.R_1;
-  //Rnew[1] = config.R_2;
   anew[0] = config.a_1;
   anew[1] = config.a_2;
   anew[2] = config.a_3;
   x0new[0] = -config.x0_1;
   x0new[1] = -config.x0_2;
   x0new[2] = -config.x0_3;
-  //theta0new[0] = config.theta0_3;   // angle around z
-  //theta0new[1] = config.theta0_2;   // angle around y
-  //theta0new[2] = config.theta0_1;   // angle around x
   rotMatnew << config.rotMat_11, config.rotMat_12, config.rotMat_13,
               config.rotMat_21, config.rotMat_22, config.rotMat_23,
               config.rotMat_31, config.rotMat_32, config.rotMat_33;
@@ -282,9 +286,124 @@ void Bifurcation::dynamicReconfigureCallback(bifurcation::parametersDynConfig &c
   std::cerr << "Current rotational speed: " << config.R << std::endl;
   std::cerr << "Current scaling: " << anew[0] << ", " << anew[1] << ", " << anew[2] << std::endl;
   std::cerr << "Current origin: " << x0new[0] << ", " << x0new[1] << ", " << x0new[2] << std::endl; 
-  //std::cerr << "Current rotation around origin: " << theta0new[0] << ", " << theta0new[1] << ", " << theta0new[2] << std::endl; 
   std::cerr << "Current rotation matrix: " << rotMatnew << std::endl;
 
-  this->p->setParameters(config.rho0, config.M, config.R, anew, x0new, rotMatnew);//theta0new);
+  this->p->setParameters(config.rho0, config.M, config.R, anew, x0new, rotMatnew);
+  */
+
+}
+
+void Bifurcation::optitrackInitialization()
+{
+  if(_averageCount< AVERAGE_COUNT)
+  {
+    if(_markersTracked(0))
+    {
+      _markersPosition0 = (_averageCount*_markersPosition0+_markersPosition)/(_averageCount+1);
+      _averageCount++;
+    }
+    std::cerr << "[ObjectGrasping]: Optitrack Initialization count: " << _averageCount << std::endl;
+    if(_averageCount == 1)
+    {
+      ROS_INFO("[ObjectGrasping]: Optitrack Initialization starting ...");
+    }
+    else if(_averageCount == AVERAGE_COUNT)
+    {
+      ROS_INFO("[ObjectGrasping]: Optitrack Initialization done !");
+      _leftRobotOrigin = _markersPosition0.col(ROBOT_BASIS_LEFT)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
+    }
+  }
+  else
+  {
+    _optitrackOK = true;
+  }
+}
+
+void Bifurcation::updateOptitrackPose(const geometry_msgs::PoseStamped::ConstPtr& msg, int k) 
+{
+  if(!_firstOptitrackPose[k])
+  {
+    _firstOptitrackPose[k] = true;
+  }
+
+  _markersSequenceID(k) = msg->header.seq;
+  _markersTracked(k) = checkTrackedMarker(_markersPosition.col(k)(0),msg->pose.position.x);
+  _markersPosition.col(k) << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
+
+  if(k == 0)
+  {
+    _markersPosition.col(k)(2) -= 0.03f;
+  }
+}
+
+void Bifurcation::computeObjectPose()
+{
+  // Check if all markers on the object are tracked
+  // The four markers are positioned on the corner of the upper face:
+  // P2 ----- P3
+  // |        |
+  // |        |
+  // P1 ----- P4
+  if(_markersTracked.segment(NB_ROBOTS,TOTAL_NB_MARKERS-NB_ROBOTS).sum() == TOTAL_NB_MARKERS-NB_ROBOTS)
+  {
+
+    if(!_firstObjectPose)
+    {
+      _firstObjectPose = true;
+    }
+
+    // Compute markers position in the right robot frame
+    _p1 = _markersPosition.col(P1)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
+    _p2 = _markersPosition.col(P2)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
+    _p3 = _markersPosition.col(P3)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
+    _p4 = _markersPosition.col(P4)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
+
+    // Compute object center position
+    _xoC = (_p1+_p2+_p3+_p4)/4.0f;
+    // Compute object dimension vector
+    // The dimension obtained from the markers is adjusted to match the real
+    // object dimension
+    _xoD = (_p3+_p4-_p1-_p2)/2.0f;
+    _xoD = 0.20f*_xoD.normalized(); 
+
+    // Filter center position and dimension vector of the object
+    SGF::Vec temp(3);
+    _xCFilter.AddData(_xoC);
+    _xCFilter.GetOutput(0,temp);
+    _xoC = temp;
+    Eigen::Vector3f xDir = _p2-_p1;
+    xDir.normalize();
+    Eigen::Vector3f yDir = _p1-_p4;
+    yDir.normalize();
+    Eigen::Vector3f zDir = xDir.cross(yDir);
+    zDir.normalize();
+    _zDirFilter.AddData(xDir.cross(yDir));
+    _zDirFilter.GetOutput(0,temp);
+    zDir = temp;
+    zDir.normalize();   
+    _xoC -= 1.0f*(_objectDim(2)/2.0f)*zDir;
+      
+    // Filter object direction
+    _xDFilter.AddData(_xoD);
+    _xDFilter.GetOutput(0,temp);
+    _xoD = 0.20f*temp.normalized();
+
+    // std::cerr <<"real" << _xdD.norm() << " " <<_xdD.transpose() << std::endl;
+    // std::cerr << "filter" <<  _xoD.norm() << " " <<_xoD.transpose() << std::endl;
+
+    // Update marker object position and orientation for RVIZ
+    _msgMarker.pose.position.x = _xoC(0);
+    _msgMarker.pose.position.y = _xoC(1);
+    _msgMarker.pose.position.z = _xoC(2);
+    Eigen::Matrix3f R;
+    R.col(0) = xDir;
+    R.col(1) = yDir;
+    R.col(2) = zDir;
+    Eigen::Vector4f q = Utils::rotationMatrixToQuaternion(R);
+    _msgMarker.pose.orientation.x = q(1);
+    _msgMarker.pose.orientation.y = q(2);
+    _msgMarker.pose.orientation.z = q(3);
+    _msgMarker.pose.orientation.w = q(0);
+  }
 
 }

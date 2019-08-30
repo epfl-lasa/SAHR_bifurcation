@@ -146,6 +146,14 @@ add_executable(bifurcation src/bifurcation_node.cpp src/bifurcation.cpp)
 target_link_libraries(bifurcation ${catkin_LIBRARIES} parameters transformations)
 add_dependencies(bifurcation ${PROJECT_NAME}_gencpp)
 
+# add_executable(bifurcationMocap src/bifurcationMocap_node.cpp src/bifurcationMocap.cpp)
+# target_link_libraries(bifurcationMocap ${catkin_LIBRARIES} parameters transformations objectMocap)
+# add_dependencies(bifurcationMocap ${PROJECT_NAME}_gencpp)
+
+add_executable(objectMocap src/objectMocap_node.cpp src/objectMocap.cpp)
+target_link_libraries(objectMocap ${catkin_LIBRARIES} parameters transformations)
+add_dependencies(objectMocap ${PROJECT_NAME}_gencpp)
+
 add_executable(move_to_desired_joints src/moveToDesiredJoints_node.cpp src/MoveToDesiredJoints.cpp)
 target_link_libraries(move_to_desired_joints ${catkin_LIBRARIES} parameters transformations)
 add_dependencies(move_to_desired_joints ${PROJECT_NAME}_gencpp)
@@ -153,6 +161,7 @@ add_dependencies(move_to_desired_joints ${PROJECT_NAME}_gencpp)
 
 add_library(transformations src/transformations.cpp)
 add_library(parameters src/parameters.cpp)
+add_library(objectMocap src/objectMocap.cpp)
 target_link_libraries(parameters ${catkin_LIBRARIES} transformations)
 
 ## Declare a C++ library
