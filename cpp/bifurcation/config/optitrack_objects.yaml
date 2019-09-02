@@ -6,19 +6,19 @@
 
 rigid_bodies:
     '39':
-        pose: optitrack/Ilaria1/pose
-        pose2d: optitrack/Ilaria1/ground_pose
-        child_frame_id: optitrack/Ilaria1/base_link
+        pose: /vrpn_client_node/Ilaria1/pose
+        pose2d: /vrpn_client_node/Ilaria1/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria1/base_link
         parent_frame_id: world
     '40':
-        pose: optitrack/Ilaria2/pose
-        pose2d: optitrack/Ilaria2/ground_pose
-        child_frame_id: optitrack/Ilaria2/base_link
+        pose: /vrpn_client_node/Ilaria2/pose
+        pose2d: /vrpn_client_node/Ilaria2/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria2/base_link
         parent_frame_id: world
     '41':
-        pose: optitrack/Ilaria3/pose
-        pose2d: optitrack/Ilaria3/ground_pose
-        child_frame_id: optitrack/Ilaria3/base_link
+        pose: /vrpn_client_node/Ilaria3/pose
+        pose2d: /vrpn_client_node/Ilaria3/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria3/base_link
         parent_frame_id: world
 
 # Configuration options at EPFL

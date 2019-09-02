@@ -21,6 +21,7 @@ void updateOptitrackPose(const geometry_msgs::PoseStamped::ConstPtr& msg, int k)
 {
 	o.position.row(k) << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
 	o.orientation.row(k) << msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z;
+  std::cerr << "Position received: " << msg->pose.position.x << std::endl;
 }
 
 
@@ -37,15 +38,19 @@ int main(int argc, char **argv)
   ObjectMocap obj1(p1,o1);
 
   // Test with mocap values
-  n.subscribe<geometry_msgs::PoseStamped>("optitrack/Ilaria1/pose", 1, boost::bind(&updateOptitrackPose,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  n.subscribe<geometry_msgs::PoseStamped>("optitrack/Ilaria2/pose", 1, boost::bind(&updateOptitrackPose,_1,1),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  n.subscribe<geometry_msgs::PoseStamped>("optitrack/Ilaria3/pose", 1, boost::bind(&updateOptitrackPose,_1,2),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria1/pose", 1, boost::bind(&updateOptitrackPose,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria2/pose", 1, boost::bind(&updateOptitrackPose,_1,1),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria3/pose", 1, boost::bind(&updateOptitrackPose,_1,2),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   while(ros::ok())
   {
     ros::spinOnce();
+    ros::Duration(0, 100000000).sleep();
   }
   std::cerr << o.position << std::endl;
   std::cerr << o.orientation << std::endl;
   ObjectMocap obj2(o.position,o.orientation);
+
+  ros::spinOnce();
+  ros::Duration(1, 0).sleep();
 }
 
