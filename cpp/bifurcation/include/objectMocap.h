@@ -20,6 +20,7 @@ public:
     float* getX0();
     Eigen::Matrix3f getRotMat();
 
+    ObjectMocap();
     ObjectMocap(Eigen::Matrix<float,NB_MARKERS,3> position, Eigen::Matrix<float,NB_MARKERS,4> orientation);
     void updateParameters(Eigen::Matrix<float,NB_MARKERS,3> position, Eigen::Matrix<float,NB_MARKERS,4> orientation);
 

@@ -13,11 +13,14 @@ int main(int argc, char **argv)
   float frequency = 100.0f;
   int N = 3;
 
+  float rho0, M, R;
+  float a[3], x0[3], theta0[3];
+
   if(argc==13){
-    float rho0 = atof(argv[1]);
-    float M = atof(argv[2]);
-    float R = atof(argv[3]);
-    float a[3], x0[3], theta0[3];
+    rho0 = atof(argv[1]);
+    M = atof(argv[2]);
+    R = atof(argv[3]);
+    a[3], x0[3], theta0[3];
     for(int i=0; i<3; i++){
       a[i] = atof(argv[4+i]);
       x0[i] = atof(argv[7+i]);
@@ -25,20 +28,28 @@ int main(int argc, char **argv)
     }
   }
   else if(argc==4){
-    float rho0 = atof(argv[1]);
-    float M = atof(argv[2]);
-    float R = atof(argv[3]);
-    float a[3] = {1,1,1};
-    float x0[3] = {0.5,0.1,-0.3};
-    float theta0[3] = {0,0,0};
+    rho0 = atof(argv[1]);
+    M = atof(argv[2]);
+    R = atof(argv[3]);
+    for(int i=0; i<3; i++){
+      a[i] = 1;
+      theta0[i] = 0;
+    }
+    x0[0] = 0.5;
+    x0[1] = 0.1;
+    x0[2] = -0.3;
   }
   else{
-    float rho0 = 0.2;
-    float M = 1;
-    float R = 1;
-    float a[3] = {1,1,1};
-    float x0[3] = {0.5,0.1,-0.3};
-    float theta0[3] = {0,0,0};
+    rho0 = 0.2;
+    M = 1;
+    R = 1;
+    for(int i=0; i<3; i++){
+      a[i] = 1;
+      theta0[i] = 0;
+    }
+    x0[0] = 0.5;
+    x0[1] = 0.1;
+    x0[2] = -0.3;
   }
 
   // std::cerr << "Current radius and mass: " << rho0 << ", " << M << std::endl;

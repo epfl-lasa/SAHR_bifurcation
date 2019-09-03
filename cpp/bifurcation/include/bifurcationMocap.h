@@ -1,9 +1,12 @@
 #include <signal.h>
 #include <mutex>
+#include <algorithm>
+#include <boost/bind.hpp>
 #include "transformations.h"
 #include "parameters.h"
 #include "ros/ros.h"
 #include "geometry_msgs/Pose.h"
+#include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Quaternion.h"
 #include "Eigen/Eigen"
@@ -63,18 +66,20 @@ class Bifurcation {
 
     	static Bifurcation* me;
 	    // Dynamic reconfigure (server+callback)
-	    dynamic_reconfigure::Server<bifurcation::parametersDynConfig> _dynRecServer;
-	    dynamic_reconfigure::Server<bifurcation::parametersDynConfig>::CallbackType _dynRecCallback;
-	    void dynamicReconfigureCallback(bifurcation::parametersDynConfig &config, uint32_t level);
+	    dynamic_reconfigure::Server<bifurcation::mocapObjectsConfig> _dynRecServer;
+	    dynamic_reconfigure::Server<bifurcation::mocapObjectsConfig>::CallbackType _dynRecCallback;
+	    void dynamicReconfigureCallback(bifurcation::mocapObjectsConfig &config, uint32_t level);
 
 	    // Optitrack
-	    void optitrackInitialization();
 	    void updateOptitrackPose(const geometry_msgs::PoseStamped::ConstPtr& msg, int k);
-	    void computeObjectPose();
+	    void computeObjectPose(int object_number);
 	    Eigen::Matrix<float,3,TOTAL_NB_MARKERS> _markersPosition;       // Markers position in optitrack frame
     	Eigen::Matrix<float,4,TOTAL_NB_MARKERS> _markersOrientation;      // Markers orientation in opittrack frame
-    	Eigen::Matrix<uint32_t,TOTAL_NB_MARKERS,1> _markersSequenceID;  // Markers sequence ID
-    	Eigen::Matrix<uint16_t,TOTAL_NB_MARKERS,1> _markersTracked;     // Markers tracked state
+    	//Eigen::Matrix<uint32_t,TOTAL_NB_MARKERS,1> _markersSequenceID;  // Markers sequence ID
+    	//Eigen::Matrix<uint16_t,TOTAL_NB_MARKERS,1> _markersTracked;     // Markers tracked state
+    	ObjectMocap obj[(TOTAL_NB_MARKERS-1)/3];
+    	bool _firstOptitrackPose[TOTAL_NB_MARKERS] = {0};
+    	bool _firstObjectPose[(TOTAL_NB_MARKERS-1)/3] = {0};
 
 	public:
 		Bifurcation(ros::NodeHandle &n, Parameters *p, float frequency);

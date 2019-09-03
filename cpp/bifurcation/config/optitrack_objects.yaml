@@ -5,6 +5,11 @@
 #  configuration.
 
 rigid_bodies:
+    '42':
+        pose: /vrpn_client_node/robot_base/pose
+        pose2d: /vrpn_client_node/robot_base/ground_pose
+        child_frame_id: /vrpn_client_node/robot_base/base_link
+        parent_frame_id: world
     '39':
         pose: /vrpn_client_node/Ilaria1/pose
         pose2d: /vrpn_client_node/Ilaria1/ground_pose
@@ -19,6 +24,21 @@ rigid_bodies:
         pose: /vrpn_client_node/Ilaria3/pose
         pose2d: /vrpn_client_node/Ilaria3/ground_pose
         child_frame_id: /vrpn_client_node/Ilaria3/base_link
+        parent_frame_id: world
+    '43':
+        pose: /vrpn_client_node/Ilaria4/pose
+        pose2d: /vrpn_client_node/Ilaria4/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria4/base_link
+        parent_frame_id: world
+    '44':
+        pose: /vrpn_client_node/Ilaria5/pose
+        pose2d: /vrpn_client_node/Ilaria5/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria5/base_link
+        parent_frame_id: world
+    '45':
+        pose: /vrpn_client_node/Ilaria6/pose
+        pose2d: /vrpn_client_node/Ilaria6/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria6/base_link
         parent_frame_id: world
 
 # Configuration options at EPFL

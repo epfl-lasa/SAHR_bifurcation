@@ -1,5 +1,8 @@
 #include "objectMocap.h"
 
+ObjectMocap::ObjectMocap()
+{}
+
 ObjectMocap::ObjectMocap(Eigen::Matrix<float,NB_MARKERS,3> position, Eigen::Matrix<float,NB_MARKERS,4> orientation)
 {
 	this->position = position;

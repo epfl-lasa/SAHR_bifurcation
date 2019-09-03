@@ -23,6 +23,14 @@ int Bifurcation::init(){
   _pubDesiredTwist = _n.advertise<geometry_msgs::Twist>("/lwr/joint_controllers/passive_ds_command_vel", 1);
   _pubDesiredOrientation = _n.advertise<geometry_msgs::Quaternion>("/lwr/joint_controllers/passive_ds_command_orient", 1);
 
+  _subOptitrackPose[0] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/robot_base/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[1] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria1/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,1),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[2] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria2/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,2),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[3] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria3/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,3),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[4] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria4/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,4),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[5] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria5/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,5),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[6] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria6/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,6),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+
   // Dynamic reconfigure definition
   _dynRecCallback = boost::bind(&Bifurcation::dynamicReconfigureCallback, this, _1, _2);
   _dynRecServer.setCallback(_dynRecCallback);
@@ -46,6 +54,14 @@ int Bifurcation::init(){
       //myfile << "time, x, y, z\n";
     }
 
+    while(!std::all_of(std::begin(_firstObjectPose),std::end(_firstObjectPose),[](bool i){return i;}) && !_stop){
+      for(int k=0; k<(TOTAL_NB_MARKERS-1)/NB_MARKERS; k++)
+        computeObjectPose(k);
+
+      ros::spinOnce();
+      _loopRate.sleep();
+    }
+
 		return 1;
 	}
 	else 
@@ -59,10 +75,9 @@ int Bifurcation::init(){
 
 void Bifurcation::run(){
 	while (!_stop) {
-  	if(this->poseReceived) {
+  	if(this->poseReceived && std::all_of(std::begin(_firstObjectPose),std::end(_firstObjectPose),[](bool i){return i;})) {
   		_mutex.lock();
     		// Compute control command
-
       updatePosVel();
 
     		// Publish data to topics
@@ -70,6 +85,10 @@ void Bifurcation::run(){
 
  	 		_mutex.unlock();
   	}
+    else{
+      for(int i=0; i<(TOTAL_NB_MARKERS-1)/NB_MARKERS; i++)
+        computeObjectPose(i);
+    }
 
   ros::spinOnce();
 
@@ -260,14 +279,17 @@ void Bifurcation::updatePosVel() {
 void Bifurcation::dynamicReconfigureCallback(bifurcation::mocapObjectsConfig &config, uint32_t level) {
   ROS_INFO("Reconfigure request. Updating the parameters ...");
 
+  int sel = config.object_number-1;
+
   if(!config.bif){  // attractor
     this->p->changeRho0(0.0);
   }
   else {  // limit cycle
-    //change to original rho0     this->p->changeRho0();
+    this->p->changeRho0(obj[sel].getRho0());
   }
 
-
+  this->p->changeX0(obj[sel].getX0());
+  this->p->changeRotMat(obj[sel].getRotMat());
 
   /*
   float anew[3], x0new[3];
@@ -293,31 +315,6 @@ void Bifurcation::dynamicReconfigureCallback(bifurcation::mocapObjectsConfig &co
 
 }
 
-void Bifurcation::optitrackInitialization()
-{
-  if(_averageCount< AVERAGE_COUNT)
-  {
-    if(_markersTracked(0))
-    {
-      _markersPosition0 = (_averageCount*_markersPosition0+_markersPosition)/(_averageCount+1);
-      _averageCount++;
-    }
-    std::cerr << "[ObjectGrasping]: Optitrack Initialization count: " << _averageCount << std::endl;
-    if(_averageCount == 1)
-    {
-      ROS_INFO("[ObjectGrasping]: Optitrack Initialization starting ...");
-    }
-    else if(_averageCount == AVERAGE_COUNT)
-    {
-      ROS_INFO("[ObjectGrasping]: Optitrack Initialization done !");
-      _leftRobotOrigin = _markersPosition0.col(ROBOT_BASIS_LEFT)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
-    }
-  }
-  else
-  {
-    _optitrackOK = true;
-  }
-}
 
 void Bifurcation::updateOptitrackPose(const geometry_msgs::PoseStamped::ConstPtr& msg, int k) 
 {
@@ -326,84 +323,37 @@ void Bifurcation::updateOptitrackPose(const geometry_msgs::PoseStamped::ConstPtr
     _firstOptitrackPose[k] = true;
   }
 
-  _markersSequenceID(k) = msg->header.seq;
-  _markersTracked(k) = checkTrackedMarker(_markersPosition.col(k)(0),msg->pose.position.x);
   _markersPosition.col(k) << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
+  _markersOrientation.col(k) << msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z;
 
-  if(k == 0)
-  {
-    _markersPosition.col(k)(2) -= 0.03f;
-  }
 }
 
-void Bifurcation::computeObjectPose()
+void Bifurcation::computeObjectPose(int object_number)
 {
   // Check if all markers on the object are tracked
-  // The four markers are positioned on the corner of the upper face:
-  // P2 ----- P3
-  // |        |
-  // |        |
-  // P1 ----- P4
-  if(_markersTracked.segment(NB_ROBOTS,TOTAL_NB_MARKERS-NB_ROBOTS).sum() == TOTAL_NB_MARKERS-NB_ROBOTS)
+  // The three markers are positioned in a triangle:
+  //     P2
+  //    /  \ 
+  //   /    \
+  // P1 ---- P3
+
+  if(std::all_of(std::begin(_firstOptitrackPose),std::end(_firstOptitrackPose),[](bool i){return i;}))
   {
 
-    if(!_firstObjectPose)
+    if(!_firstObjectPose[object_number-1])
     {
-      _firstObjectPose = true;
+      _firstObjectPose[object_number-1] = true;
+
+      Eigen::Matrix<float,NB_MARKERS,3> position;
+      Eigen::Matrix<float,NB_MARKERS,4> orientation;
+      // Shift object markers pose to robot's frame
+      for(int k=0; k<NB_MARKERS; k++){
+        position.row(k) = _markersPosition.col((object_number-1)*NB_MARKERS+k+1)-_markersPosition.col(0);
+        orientation.row(k) = _markersOrientation.col((object_number-1)*NB_MARKERS+k+1);
+      }
+
+      obj[object_number-1].updateParameters(position,orientation);
     }
-
-    // Compute markers position in the right robot frame
-    _p1 = _markersPosition.col(P1)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
-    _p2 = _markersPosition.col(P2)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
-    _p3 = _markersPosition.col(P3)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
-    _p4 = _markersPosition.col(P4)-_markersPosition0.col(ROBOT_BASIS_RIGHT);
-
-    // Compute object center position
-    _xoC = (_p1+_p2+_p3+_p4)/4.0f;
-    // Compute object dimension vector
-    // The dimension obtained from the markers is adjusted to match the real
-    // object dimension
-    _xoD = (_p3+_p4-_p1-_p2)/2.0f;
-    _xoD = 0.20f*_xoD.normalized(); 
-
-    // Filter center position and dimension vector of the object
-    SGF::Vec temp(3);
-    _xCFilter.AddData(_xoC);
-    _xCFilter.GetOutput(0,temp);
-    _xoC = temp;
-    Eigen::Vector3f xDir = _p2-_p1;
-    xDir.normalize();
-    Eigen::Vector3f yDir = _p1-_p4;
-    yDir.normalize();
-    Eigen::Vector3f zDir = xDir.cross(yDir);
-    zDir.normalize();
-    _zDirFilter.AddData(xDir.cross(yDir));
-    _zDirFilter.GetOutput(0,temp);
-    zDir = temp;
-    zDir.normalize();   
-    _xoC -= 1.0f*(_objectDim(2)/2.0f)*zDir;
-      
-    // Filter object direction
-    _xDFilter.AddData(_xoD);
-    _xDFilter.GetOutput(0,temp);
-    _xoD = 0.20f*temp.normalized();
-
-    // std::cerr <<"real" << _xdD.norm() << " " <<_xdD.transpose() << std::endl;
-    // std::cerr << "filter" <<  _xoD.norm() << " " <<_xoD.transpose() << std::endl;
-
-    // Update marker object position and orientation for RVIZ
-    _msgMarker.pose.position.x = _xoC(0);
-    _msgMarker.pose.position.y = _xoC(1);
-    _msgMarker.pose.position.z = _xoC(2);
-    Eigen::Matrix3f R;
-    R.col(0) = xDir;
-    R.col(1) = yDir;
-    R.col(2) = zDir;
-    Eigen::Vector4f q = Utils::rotationMatrixToQuaternion(R);
-    _msgMarker.pose.orientation.x = q(1);
-    _msgMarker.pose.orientation.y = q(2);
-    _msgMarker.pose.orientation.z = q(3);
-    _msgMarker.pose.orientation.w = q(0);
   }
 
 }
