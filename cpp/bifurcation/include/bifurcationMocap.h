@@ -77,9 +77,9 @@ class Bifurcation {
     	Eigen::Matrix<float,4,TOTAL_NB_MARKERS> _markersOrientation;      // Markers orientation in opittrack frame
     	//Eigen::Matrix<uint32_t,TOTAL_NB_MARKERS,1> _markersSequenceID;  // Markers sequence ID
     	//Eigen::Matrix<uint16_t,TOTAL_NB_MARKERS,1> _markersTracked;     // Markers tracked state
-    	ObjectMocap obj[(TOTAL_NB_MARKERS-1)/3];
+    	ObjectMocap obj[(TOTAL_NB_MARKERS-1)/NB_MARKERS];
     	bool _firstOptitrackPose[TOTAL_NB_MARKERS] = {0};
-    	bool _firstObjectPose[(TOTAL_NB_MARKERS-1)/3] = {0};
+    	bool _firstObjectPose[(TOTAL_NB_MARKERS-1)/NB_MARKERS] = {0};
 
 	public:
 		Bifurcation(ros::NodeHandle &n, Parameters *p, float frequency);

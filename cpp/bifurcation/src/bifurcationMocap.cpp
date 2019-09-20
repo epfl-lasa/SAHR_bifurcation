@@ -23,17 +23,16 @@ int Bifurcation::init(){
   _pubDesiredTwist = _n.advertise<geometry_msgs::Twist>("/lwr/joint_controllers/passive_ds_command_vel", 1);
   _pubDesiredOrientation = _n.advertise<geometry_msgs::Quaternion>("/lwr/joint_controllers/passive_ds_command_orient", 1);
 
-  _subOptitrackPose[0] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/robot_base/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[0] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/robot_base2/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   _subOptitrackPose[1] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria1/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,1),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   _subOptitrackPose[2] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria2/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,2),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   _subOptitrackPose[3] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria3/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,3),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  _subOptitrackPose[4] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria4/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,4),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  _subOptitrackPose[5] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria5/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,5),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  _subOptitrackPose[6] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria6/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,6),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-
-  // Dynamic reconfigure definition
-  _dynRecCallback = boost::bind(&Bifurcation::dynamicReconfigureCallback, this, _1, _2);
-  _dynRecServer.setCallback(_dynRecCallback);
+  _subOptitrackPose[4] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/hum/head/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,4),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[5] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria4/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,5),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[6] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/hum/left_elbow/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,6),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  // _subOptitrackPose[4] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria4/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,4),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  // _subOptitrackPose[5] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria5/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,5),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  // _subOptitrackPose[6] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria6/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,6),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
 
   signal(SIGINT,Bifurcation::stopNode);
 
@@ -50,13 +49,17 @@ int Bifurcation::init(){
       "_a" + std::to_string(a[0]) + "_a" + std::to_string(a[1]) ; //+ "_th" + std::to_string(theta0[0]) + "_th" + std::to_string(theta0[1]) + \
       "_th" + std::to_string(theta0[2]);
       std::cout << params << std::endl;
-      //myfile.open ("/home/lasapc28/catkin_ws/bagfiles/as_savefile/" + params + "_position.csv");
-      //myfile << "time, x, y, z\n";
+      myfile.open ("trajectories/" + params + "_position.csv");
+      myfile << "time, x, y, z\n";
     }
 
-    while(!std::all_of(std::begin(_firstObjectPose),std::end(_firstObjectPose),[](bool i){return i;}) && !_stop){
-      for(int k=0; k<(TOTAL_NB_MARKERS-1)/NB_MARKERS; k++)
+    while(!_firstObjectPose[0] && !_stop){
+      for(int k=0; k<(TOTAL_NB_MARKERS-1)/NB_MARKERS; k++){
         computeObjectPose(k);
+      }
+      // Dynamic reconfigure definition
+      _dynRecCallback = boost::bind(&Bifurcation::dynamicReconfigureCallback, this, _1, _2);
+      _dynRecServer.setCallback(_dynRecCallback);
 
       ros::spinOnce();
       _loopRate.sleep();
@@ -75,7 +78,7 @@ int Bifurcation::init(){
 
 void Bifurcation::run(){
 	while (!_stop) {
-  	if(this->poseReceived && std::all_of(std::begin(_firstObjectPose),std::end(_firstObjectPose),[](bool i){return i;})) {
+  	if(this->poseReceived && _firstObjectPose[0]) {
   		_mutex.lock();
     		// Compute control command
       updatePosVel();
@@ -277,6 +280,8 @@ void Bifurcation::updatePosVel() {
 
 
 void Bifurcation::dynamicReconfigureCallback(bifurcation::mocapObjectsConfig &config, uint32_t level) {
+  if(std::all_of(std::begin(_firstOptitrackPose),std::end(_firstOptitrackPose),[](bool i){return i;}))
+  {
   ROS_INFO("Reconfigure request. Updating the parameters ...");
 
   int sel = config.object_number-1;
@@ -287,9 +292,15 @@ void Bifurcation::dynamicReconfigureCallback(bifurcation::mocapObjectsConfig &co
   else {  // limit cycle
     this->p->changeRho0(obj[sel].getRho0());
   }
+  std::cerr << "Radius: " << this->p->getRho0() << std::endl;
 
   this->p->changeX0(obj[sel].getX0());
+  float* xZero;
+  xZero = this->p->getX0();
+  std::cerr << "Center: " << xZero[0] << ", " << xZero[1] << ", " << xZero[2] << ", " << std::endl;
   this->p->changeRotMat(obj[sel].getRotMat());
+  std::cerr << "Rotation matrix: " << this->p->getRotMat() << std::endl;
+  }
 
   /*
   float anew[3], x0new[3];
@@ -340,19 +351,21 @@ void Bifurcation::computeObjectPose(int object_number)
   if(std::all_of(std::begin(_firstOptitrackPose),std::end(_firstOptitrackPose),[](bool i){return i;}))
   {
 
-    if(!_firstObjectPose[object_number-1])
+    if(!_firstObjectPose[object_number])
     {
-      _firstObjectPose[object_number-1] = true;
+      _firstObjectPose[object_number] = true;
 
       Eigen::Matrix<float,NB_MARKERS,3> position;
       Eigen::Matrix<float,NB_MARKERS,4> orientation;
       // Shift object markers pose to robot's frame
       for(int k=0; k<NB_MARKERS; k++){
-        position.row(k) = _markersPosition.col((object_number-1)*NB_MARKERS+k+1)-_markersPosition.col(0);
-        orientation.row(k) = _markersOrientation.col((object_number-1)*NB_MARKERS+k+1);
+        position.row(k) = _markersPosition.col((object_number)*NB_MARKERS+k+1)-_markersPosition.col(0);
+        orientation.row(k) = _markersOrientation.col((object_number)*NB_MARKERS+k+1);
+        std::cerr << "Marker n. " << k+1 << ", position: " << position.row(k) << std::endl;
+        std::cerr << "Marker n. " << k+1 << ", orientation: " << orientation.row(k) << std::endl;
       }
 
-      obj[object_number-1].updateParameters(position,orientation);
+      obj[object_number].updateParameters(position,orientation);
     }
   }
 

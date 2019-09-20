@@ -52,10 +52,11 @@ int main(int argc, char **argv)
     x0[2] = -0.3;
   }
 
-  // std::cerr << "Current radius and mass: " << rho0 << ", " << M << std::endl;
-  // std::cerr << "Current rotational speed: " << R[0] << ", " << R[1] << std::endl;
-  // std::cerr << "Current scaling: " << a[0] << ", " << a[1] << ", " << a[2] << std::endl;
-  // std::cerr << "Current origin: " << x0[0] << ", " << x0[1] << ", " << x0[2] << std::endl; 
+  std::cerr << "Current radius and mass: " << rho0 << ", " << M << std::endl;
+  std::cerr << "Current rotational speed: " << R << std::endl;
+  std::cerr << "Current scaling: " << a[0] << ", " << a[1] << ", " << a[2] << std::endl;
+  std::cerr << "Current origin: " << x0[0] << ", " << x0[1] << ", " << x0[2] << std::endl; 
+  std::cerr << "Current rotation angle: " << theta0[0] << ", " << theta0[1] << ", " << theta0[2] << std::endl; 
 
   Parameters *p = new Parameters(N, rho0, M, R, a, x0, theta0);
 
