@@ -202,8 +202,13 @@ void Bifurcation::updatePosVel() {
   //float* theta0 = this->p->getTheta0();
   Eigen::Matrix3f rotMat = this->p->getRotMat();
 
-  float max_v = 0.5;
+  float max_v = 0.3;
   float epsilon = 0.001;      // tolerance to avoid azimuth perturbations when "crossing" the origin
+
+  // store previous desired velocity
+  float vprev[N];
+  for (int i=0; i<N; i++)
+    vprev[i] = this->vd[i];
 
   //std::cerr << "Current radius and mass: " << rho0 << ", " << M << std::endl;
   //std::cerr << "Current rotational speed: " << R << std::endl; //R[0] << ", " << R[1] << std::endl;
@@ -242,6 +247,18 @@ void Bifurcation::updatePosVel() {
     //this->vd[i] = (xd[i] - x[i]) / this->dt;
   }
   this->vd = sph2cartvel(r,sphvel,1,N);
+
+  if (smooth == true){
+    if (smoothCount++ < MaxCount){
+      for(int i=0; i<N; i++){
+        this->vd[i] = smoothCount/MaxCount * this->vd[i] + (MaxCount-smoothCount)/MaxCount * vprev[i];
+      }
+    }
+    else {
+      smooth = false;
+      smoothCount = 0;
+    }
+  }
 
   float norm_v = sqrt(pow(this->vd[0],2) + pow(this->vd[1],2) + pow(this->vd[2],2));
   if(norm_v > max_v) {
@@ -284,6 +301,8 @@ void Bifurcation::dynamicReconfigureCallback(bifurcation::parametersDynConfig &c
   std::cerr << "Current origin: " << x0new[0] << ", " << x0new[1] << ", " << x0new[2] << std::endl; 
   //std::cerr << "Current rotation around origin: " << theta0new[0] << ", " << theta0new[1] << ", " << theta0new[2] << std::endl; 
   std::cerr << "Current rotation matrix: " << rotMatnew << std::endl;
+
+  smoothCount = true;
 
   this->p->setParameters(config.rho0, config.M, config.R, anew, x0new, rotMatnew);//theta0new);
 

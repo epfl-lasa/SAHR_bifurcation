@@ -159,6 +159,10 @@ add_executable(move_to_desired_joints src/moveToDesiredJoints_node.cpp src/MoveT
 target_link_libraries(move_to_desired_joints ${catkin_LIBRARIES} parameters transformations)
 add_dependencies(move_to_desired_joints ${PROJECT_NAME}_gencpp)
 
+add_executable(recordData src/recordData.cpp)
+target_link_libraries(recordData ${catkin_LIBRARIES})
+add_dependencies(recordData ${PROJECT_NAME}_gencpp)
+
 
 add_library(transformations src/transformations.cpp)
 add_library(parameters src/parameters.cpp)

@@ -73,7 +73,7 @@ void ObjectMocap::updateParameters(Eigen::Matrix<float,NB_MARKERS,3> position, E
 			for(int i=0; i<3; i++){
 				this->x0[i] = - (a[0]*position(0,i) + a[1]*position(1,i) + a[2]*position(2,i)) / (a[0]+a[1]+a[2]);
 			}
-			// this->x0[2] -= 0.1;		// NEED TO MODIFY INFO ON TOOL!!
+			this->x0[2] -= 0.1;		// NEED TO MODIFY INFO ON TOOL!!
 
 			// Find plane and rotation matrix (rotMat)
 			this->rotMat = Utils::quaternionToRotationMatrix(orientation.row(0));

@@ -50,6 +50,11 @@ class Bifurcation {
 		Eigen::Vector4f _qd;
 		Eigen::Matrix3f _wRb;
 
+		// variables to smooth switching
+		bool smooth = false;
+		int MaxCount = 50;
+		int smoothCount = 0;
+
 		bool _stop;
 		bool poseReceived;
 		// Class variables

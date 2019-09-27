@@ -5,10 +5,10 @@
 #  configuration.
 
 rigid_bodies:
-    '49':   # 42 for robot_base
-        pose: /vrpn_client_node/robot_base2/pose
-        pose2d: /vrpn_client_node/robot_base2/ground_pose
-        child_frame_id: /vrpn_client_node/robot_base2/base_link
+    '42':   # 49 for robot_base2
+        pose: /vrpn_client_node/robot_base/pose
+        pose2d: /vrpn_client_node/robot_base/ground_pose
+        child_frame_id: /vrpn_client_node/robot_base/base_link
         parent_frame_id: world
     '39':
         pose: /vrpn_client_node/Ilaria1/pose
