@@ -42,8 +42,8 @@ int Bifurcation::init(){
       "_a" + std::to_string(a[0]) + "_a" + std::to_string(a[1]) ; //+ "_th" + std::to_string(theta0[0]) + "_th" + std::to_string(theta0[1]) + \
       "_th" + std::to_string(theta0[2]);
       std::cout << params << std::endl;
-      //myfile.open ("/home/lasapc28/catkin_ws/bagfiles/as_savefile/" + params + "_position.csv");
-      //myfile << "time, x, y, z\n";
+      myfile.open (params + "_position.csv");//myfile.open ("/home/lasapc28/catkin_ws/bagfiles/as_savefile/" + params + "_position.csv");
+      myfile << "time, x, y, z\n";
     }
 
 		return 1;
@@ -251,7 +251,8 @@ void Bifurcation::updatePosVel() {
   if (smooth == true){
     if (smoothCount++ < MaxCount){
       for(int i=0; i<N; i++){
-        this->vd[i] = smoothCount/MaxCount * this->vd[i] + (MaxCount-smoothCount)/MaxCount * vprev[i];
+        this->vd[i] *= (float)(smoothCount)/MaxCount;
+        this->vd[i] += (float)(MaxCount-smoothCount)/MaxCount * vprev[i];
       }
     }
     else {
@@ -302,7 +303,7 @@ void Bifurcation::dynamicReconfigureCallback(bifurcation::parametersDynConfig &c
   //std::cerr << "Current rotation around origin: " << theta0new[0] << ", " << theta0new[1] << ", " << theta0new[2] << std::endl; 
   std::cerr << "Current rotation matrix: " << rotMatnew << std::endl;
 
-  smoothCount = true;
+  smooth = true;
 
   this->p->setParameters(config.rho0, config.M, config.R, anew, x0new, rotMatnew);//theta0new);
 

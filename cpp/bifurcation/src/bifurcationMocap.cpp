@@ -270,7 +270,8 @@ void Bifurcation::updatePosVel() {
   if (smooth == true){
     if (smoothCount++ < MaxCount){
       for(int i=0; i<N; i++){
-        this->vd[i] = smoothCount/MaxCount * this->vd[i] + (MaxCount-smoothCount)/MaxCount * vprev[i];
+        this->vd[i] *= (float)(smoothCount)/MaxCount;
+        this->vd[i] += (float)(MaxCount-smoothCount)/MaxCount * vprev[i];
       }
     }
     else {
@@ -316,7 +317,7 @@ void Bifurcation::dynamicReconfigureCallback(bifurcation::mocapObjectsConfig &co
   std::cerr << "Rotation matrix: " << this->p->getRotMat() << std::endl;
   }
 
-  smoothCount = true;
+  smooth = true;
 
   /*
   float anew[3], x0new[3];

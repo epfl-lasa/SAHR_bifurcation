@@ -53,7 +53,7 @@ class Bifurcation {
 
 		// variables to smooth switching
 		bool smooth = false;
-		int MaxCount = 50;
+		float MaxCount = 20;
 		int smoothCount = 0;
 
 
