@@ -96,14 +96,14 @@ float* hyper2cart(float hyper[], int M, int N){
     for(int i=0; i<M; i++){
         prodCosDim = 1;
         for(int j=1; j<N; j++){
-            // Multiply cosine of all hyperspherical dimensions but radius
-            prodCosDim = prodCosDim * cos(hyper[i + M*j]);
             if(j == 1)
                 // Calculate last cartesian dimension using also radius (hyper[i])
                 data[i + M*(N-j)] = hyper[i] * sin(hyper[i + M*j]);
             else
                 // Calculate intermediate cartesian dimensions using also radius (hyper[i])
                 data[i + M*(N-j)] = hyper[i] * prodCosDim * sin(hyper[i + M*j]);
+            // Multiply cosine of all hyperspherical dimensions but radius
+            prodCosDim = prodCosDim * cos(hyper[i + M*j]);
         }
         data[i] = hyper[i] * prodCosDim;           // Calculate first cartesian dimension
     }

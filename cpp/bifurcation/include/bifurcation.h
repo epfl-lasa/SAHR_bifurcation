@@ -51,6 +51,12 @@ class Bifurcation {
 		std::ofstream myfile;
 		bool _saveToFile = true;
 
+		// variables to smooth switching
+		bool smooth = false;
+		float MaxCount = 20;
+		int smoothCount = 0;
+
+
     	void getPosVel(const geometry_msgs::Pose::ConstPtr& msg);
     	void updatePosVel();
     	static void stopNode(int sig); 

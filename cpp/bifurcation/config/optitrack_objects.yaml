@@ -1,0 +1,61 @@
+# Definition of all trackable objects (rigid bodies) and their respective
+# pose topics and TF frame name (child_frame_id).
+#
+# The marker ID corresponds to the *User Data* field in the Motive
+#  configuration.
+
+rigid_bodies:
+    '42':   # 49 for robot_base2
+        pose: /vrpn_client_node/robot_base/pose
+        pose2d: /vrpn_client_node/robot_base/ground_pose
+        child_frame_id: /vrpn_client_node/robot_base/base_link
+        parent_frame_id: world
+    '39':
+        pose: /vrpn_client_node/Ilaria1/pose
+        pose2d: /vrpn_client_node/Ilaria1/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria1/base_link
+        parent_frame_id: world
+    '40':
+        pose: /vrpn_client_node/Ilaria2/pose
+        pose2d: /vrpn_client_node/Ilaria2/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria2/base_link
+        parent_frame_id: world
+    '41':
+        pose: /vrpn_client_node/Ilaria3/pose
+        pose2d: /vrpn_client_node/Ilaria3/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria3/base_link
+        parent_frame_id: world
+    '28':
+        pose: /vrpn_client_node/hum/head/pose
+        pose2d: /vrpn_client_node/hum/head/ground_pose
+        child_frame_id: /vrpn_client_node/hum/head/base_link
+        parent_frame_id: world
+    '43':
+        pose: /vrpn_client_node/Ilaria4/pose
+        pose2d: /vrpn_client_node/Ilaria4/ground_pose
+        child_frame_id: /vrpn_client_node/Ilaria4/base_link
+        parent_frame_id: world
+    '38':
+        pose: /vrpn_client_node/hum/left_elbow/pose
+        pose2d: /vrpn_client_node/hum/left_elbow/ground_pose
+        child_frame_id: /vrpn_client_node/hum/left_elbow/base_link
+        parent_frame_id: world
+    # '43':
+    #     pose: /vrpn_client_node/Ilaria4/pose
+    #     pose2d: /vrpn_client_node/Ilaria4/ground_pose
+    #     child_frame_id: /vrpn_client_node/Ilaria4/base_link
+    #     parent_frame_id: world
+    # '44':
+    #     pose: /vrpn_client_node/Ilaria5/pose
+    #     pose2d: /vrpn_client_node/Ilaria5/ground_pose
+    #     child_frame_id: /vrpn_client_node/Ilaria5/base_link
+    #     parent_frame_id: world
+    # '45':
+    #     pose: /vrpn_client_node/Ilaria6/pose
+    #     pose2d: /vrpn_client_node/Ilaria6/ground_pose
+    #     child_frame_id: /vrpn_client_node/Ilaria6/base_link
+    #     parent_frame_id: world
+
+# Configuration options at EPFL
+optitrack_config:
+        multicast_address: 239.255.42.99

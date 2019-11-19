@@ -6,9 +6,11 @@ if(~exist('timeAtBeginning','var'))
 end
 
 if(isempty(filename))
-    [filename,~] = uigetfile('*.csv');
+    [filename,pathname] = uigetfile('*.csv');
+else
+    pathname = "";
 end
-fileID = fopen(filename,'r');
+fileID = fopen(strcat(pathname,filename),'r');
 
 delimiter = ',';
 startRow = 2;

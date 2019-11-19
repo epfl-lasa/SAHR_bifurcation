@@ -3,11 +3,13 @@ MATLAB code for optimization of the DS.
 
 Structure:
 
-control_parameters:
+control_parameters/
+
     plotDynamics.m : Run this GUI to test the parameters learned.
 
 
 data/
+
 	data_icub/	: Data humanoids (work in progress)
 	data_LfD/	: Data from kinesthetic trajectories
 	data_polishing/	: Data for validation on real robot
@@ -17,11 +19,13 @@ data/
 
 
 evaluation/
+
 	DMP/		: Functions for DMP comparison. Copyright: Stefan Schaal and Auke Ijspeert
 	evaluation functions
 
 
 src/
+
 	conversions/	: Functions converting to and from polar/spherical coordinates
 	DS formulation/	: Function resuming the formulation of the dynamical system
 	optimization/	: Functions for the actual Least Squares optimization and dimensionality reduction
@@ -29,6 +33,7 @@ src/
 
 
 toolboxes/
+
 	drtoolbox/	: Toolbox for dimensionality reduction. Copyright: Laurens van der Maaten, Delft University of Technology, http://homepage.tudelft.nl/19j49
 	GMR-dynamics/	: Toolbox for GMM. Copyright: Sylvain Calinon and Micha Hersch, http://lasa.epfl.ch/sourcecode/index.php#GMM
 
