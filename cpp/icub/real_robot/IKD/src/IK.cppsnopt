@@ -1,0 +1,287 @@
+#include "IK.h"
+#include "ID.h"
+using namespace std;
+using namespace Eigen;
+
+#include "snoptStructure.hpp"
+
+Model * this_Model;
+Contact_Manager * this_CM;
+Cvector alpha;
+Cvector qref;
+Cvector freeze;
+
+#include <sys/time.h>
+
+double timetotal;
+int funval;
+
+
+#define N_TASK 45
+#define inf 1e20
+
+double fact(double x)       //factorial function
+{                           //Simply calculates factorial for denominator
+    if(x==0 || x==1)
+        return 1;
+    else
+        return x * fact(x - 1);
+}
+
+double SinXoverX(double x)      //mySin function
+{
+    double sum = 0.0;
+    for(int i = 0; i < 10; i++)
+    {
+        double top = pow(-1, i) * pow(x, 2 * i + 1 - 1);  //calculation for nominator
+        double bottom = fact(2 * i + 1);              //calculation for denominator
+        sum += top / bottom;
+    }
+    return sum;
+}
+
+Cvector4 T2Q(Cvector3 T)
+{
+    T /= 2;
+    double p = 0;
+    Cvector3 v = T.segment(0,3);
+    Cvector4 Q;
+    Q[3] = cos(v.norm());
+    Q.segment(0,3) = v*SinXoverX(v.norm());
+    return exp(p)*Q;
+}
+
+Cvector3 Q2T(Cvector4 Q)
+{
+    Q /= Q.norm();
+    double c = Q[3];
+    Q[3] = 0;
+    double s = Q.norm();
+    double normv = atan2(s,c);
+    return Q.segment(0,3) / SinXoverX(normv) * 2;
+}
+
+Cvector4 QxQ(Cvector4 a, Cvector4 b)
+{
+    Cvector4 res(4);
+    res[0] =  a[1]*b[2] - a[2]*b[1] + a[0]*b[3] + a[3]*b[0];
+    res[1] =  a[2]*b[0] - a[0]*b[2] + a[1]*b[3] + a[3]*b[1];
+    res[2] =  a[0]*b[1] - a[1]*b[0] + a[2]*b[3] + a[3]*b[2];
+    res[3] = -a[0]*b[0] - a[1]*b[1] - a[2]*b[2] + a[3]*b[3];
+    return quat_normalize(res);
+}
+
+Cvector4 getQ(Cvector Q)
+{
+    Cvector4 a;
+    a[3] = Q[AIR_N_U];
+    a.segment(0,3) = Q.segment(3,3);
+    return a;
+}
+
+Cvector setQ(Cvector Q, Cvector4 a)
+{
+    Q[AIR_N_U] = a[3];
+    Q.segment(3,3) = a.segment(0,3);
+    return Q;
+}
+
+void obj(int    *Status, int *n,    double sx[],
+          int    *needF,  int *neF,  double sF[],
+          int    *needG,  int *neG,  double sG[],
+          char      *cu,  int *lencu,
+          int    iu[],    int *leniu,
+          double ru[],    int *lenru )
+{
+	Cvector Xr = Cvector::Zero(N_TASK);
+	Cvector X0 = Cvector::Zero(N_TASK);
+	Cvector slack = Cvector::Zero(N_TASK);
+	Cmatrix J = Cmatrix::Zero(N_TASK, AIR_N_U);
+	
+	Cvector q = qref;
+	int index = 0;
+	for(int i=0;i<AIR_N_U;i++)
+		if(freeze[i]==0)
+		{
+			q[i] = sx[index];
+			index ++;
+		}
+	q[AIR_N_U] = sqrt( 1 - q.segment(3,3).dot(q.segment(3,3)) );
+	Cvector dq = Cvector::Zero(AIR_N_U);	
+
+
+	
+    this_Model->set_state(0, q, dq);
+
+	timeval start;
+    timeval end;
+	gettimeofday(&start, NULL);
+
+	/*
+	int beg_index = 0;
+    for(int index=0;index<this_CM->size();index++)
+    {
+		int body = this_CM->C[index].body;
+        Cvector3 offset = this_CM->C[index].offset;
+		Cmatrix R = this_Model->get_orient(body);
+
+		Cmatrix Jp = this_Model->get_jacob(body, offset, CT_TRANSLATION);
+		Cmatrix Jo = this_Model->get_jacob(body, offset, CT_ROTATION);
+
+		Cmatrix RR = this_Model->get_orient(0);
+		Jo.block(0,3,3,3) = RR.transpose() * Jo.block(0,3,3,3);
+
+        for(int k=0;k<3;k++)
+        {
+            Cvector3 Xf = k==0? Cvector3(1,0,0) : (k==1 ? Cvector3(0,1,0) : Cvector3(0,0,1));
+            X0.segment(beg_index,3) = this_Model->get_pos(body, offset) + R * Xf;
+            Xr.segment(beg_index,3) = this_CM->C[index].ref_p.pos + ang2dc(this_CM->C[index].ref_o.pos) * Xf;
+			slack.segment(beg_index,3) = this_CM->C[index].T.slack_cost;	
+            if(*needG==1)
+                J.block(beg_index,0,3,AIR_N_U) = Jp - skew_symmetric(R * Xf) * Jo;
+            beg_index += 3;
+        }
+	}*/
+
+    int beg_index = 0;
+    for(int index=0;index<this_CM->size();index++)
+    {
+        int body = this_CM->C[index].body;
+        Cvector3 offset = this_CM->C[index].offset;
+
+        X0.segment(beg_index,3)        = this_Model->get_pos(body, offset);
+        Xr.segment(beg_index,3)        = this_CM->C[index].ref_p.pos;
+        slack.segment(beg_index,3)     = this_CM->C[index].T.slack_cost;	
+        X0.segment(beg_index+3,3)      = Q2T(this_Model->get_orient_quat(body));
+        Xr.segment(beg_index+3,3)      = Q2T(ang2quat(this_CM->C[index].ref_o.pos));
+        slack.segment(beg_index+3,3)   = this_CM->C[index].R.slack_cost;	
+		//if(index==0)
+		//	X0.segment(beg_index,3)    = this_Model->get_cm();
+        beg_index += 6;
+    }
+
+
+	
+	beg_index = 0;
+	if(*needG==1)
+	for(int index=0;index<this_CM->size();index++)
+    {
+        int body = this_CM->C[index].body;
+        Cvector3 offset = this_CM->C[index].offset;
+
+		J.block(beg_index,0,3,AIR_N_U) = this_Model->get_jacob(body, offset, CT_TRANSLATION);		
+		J.block(beg_index+3,0,3,AIR_N_U) = this_Model->get_orient(body).transpose() * this_Model->get_jacob(body, offset, CT_ROTATION);
+		//if(index==0)
+		//	J.block(beg_index,0,3,AIR_N_U) = this_Model->get_cm_J();
+        beg_index += 6;
+    }
+gettimeofday(&end, NULL);
+timetotal += (end.tv_sec-start.tv_sec)*1000 + (end.tv_usec-start.tv_usec)/1000.0;
+funval ++;
+
+	
+    if(*needF==1)
+    {
+        sF[0] = 0;
+		for(int i=0;i<AIR_N_U;i++)
+			sF[0] += 0.5 * pow(q[i]-qref[i],2.0) * alpha[i];
+		for(int i=0;i<N_TASK;i++)
+			sF[0] += 0.5 * pow(Xr[i]-X0[i],2.0) * slack[i];
+    }
+    if(*needG==1)
+    {
+		Cvector gradient = J.transpose() * ((X0 - Xr).cwiseProduct(slack))
+						 				 + (q - qref).segment(0,AIR_N_U).cwiseProduct(alpha);
+		int index = 0;
+		for(int i=0;i<AIR_N_U;i++)
+			if(freeze[i]==0)
+			{
+				sG[index] = gradient[i];
+				index ++;
+			}
+    }
+	
+}
+
+
+double IK(Contact_Manager &CM,
+       IKPARAM &param,
+       Cvector& ref_pos, Cvector if_pose)
+{
+	timeval start, end;
+	gettimeofday(&start, NULL);
+	
+	Model model = *CM.M;
+	this_Model = &model;
+	this_CM = &CM;
+	freeze = if_pose;
+	alpha = (Cvector::Ones(AIR_N_U)-freeze) * param.damping;
+	qref = ref_pos;
+
+	// shift singular joints away from singularity
+    // int adjust_list[4] = {15, 21, 27, 34};
+    // double adjust_sign[4] = {-1,-1,1,1}; /// WARNING: to be checked
+    // for(int i=0;i<4;i++)
+    //     ref_pos[adjust_list[i]] += freeze[adjust_list[i]]==0 ? adjust_sign[i] * param.xinit : 0;
+
+	////////////////////////////////////////////////////////////////////////////////
+	// init snopt
+	vars IKD_vars;
+	IKD_vars.num_var = AIR_N_U - round(freeze.sum());
+    IKD_vars.num_eq = 1;
+    IKD_vars.ObjRow  = 0;
+    IKD_vars.ObjAdd  = 0;
+    IKD_vars.snopt = new snoptProblemA("IKD","");
+    IKD_vars.snopt->setUserFun(obj);
+    snopt_allocate_space(IKD_vars);
+    //snopt_set_parameters(IKD_vars);
+
+	int index = 0;
+    for(int i=0;i<AIR_N_U;i++)
+		if(freeze[i]==0)
+		{
+		    IKD_vars.x[index] = ref_pos[i];
+		    IKD_vars.x0[index] = ref_pos[i];
+		    IKD_vars.xstate[index] = 0;
+		    IKD_vars.xmul[index] = 0;
+		    IKD_vars.xlow[index] = i<6 ? -1e20 : model.qmin[i-6]/180.0*M_PI;
+		    IKD_vars.xupp[index] = i<6 ?  1e20 : model.qmax[i-6]/180.0*M_PI;
+			index ++;
+		}
+    for(int i=0;i<IKD_vars.num_eq;i++)
+    {
+        IKD_vars.F[i]= 0;
+        IKD_vars.Flow[i]= 0;
+        IKD_vars.Fupp[i]= 0;
+        IKD_vars.Fmul[i]= 0;
+        IKD_vars.Fstate[i]= 0;
+    }
+    IKD_vars.Fupp[0] = 1e20;
+
+	for(int i=0;i<IKD_vars.num_var;i++)
+	{
+		IKD_vars.iGfun[i] = 0; 
+		IKD_vars.jGvar[i] = i;
+	}
+	IKD_vars.num_deriv = IKD_vars.num_var;
+	////////////////////////////////////////////////////////////////////////////////
+
+	snopt_load_vars_full(IKD_vars);
+	IKD_vars.snopt->setSpecsFile  ( "Problem.spc" );
+	
+	timetotal = 0;
+	funval = 0;
+    IKD_vars.snopt->solve( 2 );
+	cout << setprecision( 5 ) << "time: " << timetotal/funval << endl;	
+
+	index = 0;
+	for(int i=0;i<AIR_N_U;i++)
+		if(freeze[i]==0)
+		{
+		    ref_pos[i] = IKD_vars.x[index];
+			index ++;
+		}
+    gettimeofday(&end, NULL);
+    return (end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec)/1e6;
+}
+

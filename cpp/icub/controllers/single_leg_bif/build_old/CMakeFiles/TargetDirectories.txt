@@ -1,0 +1,4 @@
+/home/lasapc28/catkin_ws/src/walking/controllers/single_leg_bif/build/CMakeFiles/rebuild_cache.dir
+/home/lasapc28/catkin_ws/src/walking/controllers/single_leg_bif/build/CMakeFiles/edit_cache.dir
+/home/lasapc28/catkin_ws/src/walking/controllers/single_leg_bif/build/CMakeFiles/main.dir
+/home/lasapc28/catkin_ws/src/walking/controllers/single_leg_bif/build/CMakeFiles/Model.dir

@@ -1,0 +1,185 @@
+# Produced by CVXGEN, 2018-11-27 12:50:02 -0500.
+# CVXGEN is Copyright (C) 2006-2017 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2017 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+# Produced by CVXGEN, 2018-11-07 10:12:11 -0500.
+# CVXGEN is Copyright (C) 2006-2017 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2017 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+# Produced by CVXGEN, 2018-10-24 08:31:10 -0400.
+# CVXGEN is Copyright (C) 2006-2017 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2017 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+# Produced by CVXGEN, 2015-09-08 09:41:30 -0400.
+# CVXGEN is Copyright (C) 2006-2012 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2012 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+# Produced by CVXGEN, 2014-11-26 07:48:34 -0500.
+# CVXGEN is Copyright (C) 2006-2012 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2012 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+# Produced by CVXGEN, 2014-11-11 08:08:09 -0500.
+# CVXGEN is Copyright (C) 2006-2012 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2012 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+# Produced by CVXGEN, 2014-11-11 06:49:05 -0500.
+# CVXGEN is Copyright (C) 2006-2012 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2012 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+# Produced by CVXGEN, 2014-11-09 07:19:53 -0500.
+# CVXGEN is Copyright (C) 2006-2012 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2012 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+dimensions
+  K = 000
+  N = 32
+  M = 10  # total
+  MT = 4 # translational, contacted
+  MR = 4 # rotational, contacted
+
+  nB = 6
+  nT = 6
+  nLL = 6
+  nRL = 6
+  nLH = 7
+  nRH = 7
+
+  iB = 0
+  iT = 6
+  iLL = 12
+  iRL = 18
+  iLH = 24
+  iRH = 31
+
+  cCMp = 0
+  cCMo = 3
+  cLLp = 6
+  cLLo = 9
+  cRLp = 12
+  cRLo = 15
+  cLHp = 18
+  cLHo = 21
+  cRHp = 24
+  cRHo = 27
+end
+
+parameters
+  I[i] (N+6),i=1..N+6
+  H (N+6)
+
+  min_tau (N)
+  max_tau (N)
+  min_ddq (N)
+  max_ddq (N)
+  tau_ref (N)
+  Qt (N)  nonnegative  # quadratic penalty for joint torques
+  Qq (N+6)  nonnegative  # quadratic penalty for joint accelerations
+
+  # Acceleration tasks
+  J[i] (N+6), i=1..M*3
+  Jtask[i] (N+6), i=1..M*3
+  xddTask (M*3)
+  dJdqTask (M*3)
+  QqTask (M*3) nonnegative  # quadratic penalty for cartesian acceleration slack variabels
+  ifTask[i] (1), i=1..MT+MR+2
+
+  # Translational contacts
+  nx[i] (3), i=1..MT
+  ny[i] (3), i=1..MT
+  nz[i] (3), i=1..MT
+  uT_min[i] (3), i=1..MT
+  uT_max[i] (3), i=1..MT
+  QlT[i] (3) nonnegative, i=1..MT  # quadratic penalty for contact forces
+  ifp[i] (1), i=1..MT
+
+  # rotational contacts
+  uR_min[i] (3), i=1..MR
+  uR_max[i] (3), i=1..MR
+  QlR[i] (3) nonnegative, i=1..MR  # quadratic penalty for contact momentums
+  ifo[i] (1), i=1..MR
+end
+
+variables
+  ddq (N+6)
+  tau (N)
+  F[i]  (3), i=1..MT
+  T[i]  (3), i=1..MR
+  slack (M*3)
+end
+
+minimize
+  Qq'*square(ddq) + Qt'*square(tau-tau_ref) + QqTask'*square(slack) + sum[i=1..MT](QlT[i]'*square(F[i])) +  sum[i=1..MR](QlR[i]'*square(T[i]))
+subject to
+
+  sum[i=iB+1..iB+N+6](I[j][i]*ddq[i]) + H[j] - sum[i=1..3](J[cLLp+i][j]*F[1][i]*ifp[1] + J[cRLp+i][j]*F[2][i]*ifp[2] + J[cLHp+i][j]*F[3][i]*ifp[3] + J[cRHp+i][j]*F[4][i]*ifp[4]) == 0 ,j=iB+1..iB+3
+  sum[i=iB+1..iB+N+6](I[j][i]*ddq[i]) + H[j] - sum[i=1..3](J[cLLp+i][j]*F[1][i]*ifp[1] + J[cRLp+i][j]*F[2][i]*ifp[2] + J[cLHp+i][j]*F[3][i]*ifp[3] + J[cRHp+i][j]*F[4][i]*ifp[4] + J[cLLo+i][j]*T[1][i]*ifo[1] + J[cRLo+i][j]*T[2][i]*ifo[2] + J[cLHo+i][j]*T[3][i]*ifo[3] + J[cRHo+i][j]*T[4][i]*ifo[4]) == 0 ,j=iB+4..iB+6
+  sum[i=iB+1..iB+nB+nT](I[j][i]*ddq[i]) + sum[i=iLH+1..iLH+nLH+nRH](I[j][i]*ddq[i]) + H[j] - sum[i=1..3](J[cLHp+i][j]*F[3][i]*ifp[3] + J[cRHp+i][j]*F[4][i]*ifp[4] + J[cLHo+i][j]*T[3][i]*ifo[3] + J[cRHo+i][j]*T[4][i]*ifo[4]) - tau[j-6] == 0 ,j=iT+1..iT+nT
+  sum[i=iB+1..iB+nB](I[j][i]*ddq[i]) + sum[i=iLL+1..iLL+nLL](I[j][i]*ddq[i]) + H[j] - sum[i=1..3](J[cLLp+i][j]*F[1][i]*ifp[1] + J[cLLo+i][j]*T[1][i]*ifo[1]) - tau[j-6] == 0 ,j=iLL+1..iLL+nLL
+  sum[i=iB+1..iB+nB](I[j][i]*ddq[i]) + sum[i=iRL+1..iRL+nRL](I[j][i]*ddq[i]) + H[j] - sum[i=1..3](J[cRLp+i][j]*F[2][i]*ifp[2] + J[cRLo+i][j]*T[2][i]*ifo[2]) - tau[j-6] == 0 ,j=iRL+1..iRL+nRL
+  sum[i=iB+1..iB+nB+nT](I[j][i]*ddq[i]) + sum[i=iLH+1..iLH+nLH](I[j][i]*ddq[i]) + H[j] - sum[i=1..3](J[cLHp+i][j]*F[3][i]*ifp[3] + J[cLHo+i][j]*T[3][i]*ifo[3]) - tau[j-6] == 0 ,j=iLH+1..iLH+nLH
+  sum[i=iB+1..iB+nB+nT](I[j][i]*ddq[i]) + sum[i=iRH+1..iRH+nRH](I[j][i]*ddq[i]) + H[j] - sum[i=1..3](J[cRHp+i][j]*F[4][i]*ifp[4] + J[cRHo+i][j]*T[4][i]*ifo[4]) - tau[j-6] == 0 ,j=iRH+1..iRH+nRH
+
+  # Joint limit constraints
+  min_tau[i] <= tau[i] <= max_tau[i], i=1..N
+  min_ddq[i] <= ddq[i+6] <= max_ddq[i], i=1..N
+
+  # Acceleration Constraints
+  ( sum[i=iB+1..iB+N+6](  Jtask[j][i]*ddq[i])                                             + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[1] == 0 ,j=cCMp+1..cCMp+3
+  ( sum[i=iB+1..iB+nB](   Jtask[j][i]*ddq[i])                                             + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[2] == 0 ,j=cCMo+1..cCMo+3
+  ( sum[i=iB+1..iB+nB](   Jtask[j][i]*ddq[i]) + sum[i=iLL+1..iLL+nLL](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[3] == 0 ,j=cLLp+1..cLLp+3
+  ( sum[i=iB+1..iB+nB](   Jtask[j][i]*ddq[i]) + sum[i=iLL+1..iLL+nLL](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[4] == 0 ,j=cLLo+1..cLLo+3
+  ( sum[i=iB+1..iB+nB](   Jtask[j][i]*ddq[i]) + sum[i=iRL+1..iRL+nRL](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[5] == 0 ,j=cRLp+1..cRLp+3
+  ( sum[i=iB+1..iB+nB](   Jtask[j][i]*ddq[i]) + sum[i=iRL+1..iRL+nRL](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[6] == 0 ,j=cRLo+1..cRLo+3
+  ( sum[i=iB+1..iB+nB+nT](Jtask[j][i]*ddq[i]) + sum[i=iLH+1..iLH+nLH](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[7] == 0 ,j=cLHp+1..cLHp+3
+  ( sum[i=iB+1..iB+nB+nT](Jtask[j][i]*ddq[i]) + sum[i=iLH+1..iLH+nLH](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[8] == 0 ,j=cLHo+1..cLHo+3
+  ( sum[i=iB+1..iB+nB+nT](Jtask[j][i]*ddq[i]) + sum[i=iRH+1..iRH+nRH](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[9] == 0 ,j=cRHp+1..cRHp+3
+  ( sum[i=iB+1..iB+nB+nT](Jtask[j][i]*ddq[i]) + sum[i=iRH+1..iRH+nRH](Jtask[j][i]*ddq[i]) + dJdqTask[j] - xddTask[j] - slack[j] ) * ifTask[10]== 0 ,j=cRHo+1..cRHo+3
+
+  # Contact force constraints
+  uT_min[i][1] * ifp[i]*F[i]'*nz[i] <= ifp[i]*F[i]'*nx[i] <=  uT_max[i][1] * ifp[i]*F[i]'*nz[i], i=1..MT
+  uT_min[i][2] * ifp[i]*F[i]'*nz[i] <= ifp[i]*F[i]'*ny[i] <=  uT_max[i][2] * ifp[i]*F[i]'*nz[i], i=1..MT
+  0 <= ifp[i]*F[i]'*nz[i], i=1..MT
+  uR_min[i][1] * (ifp[i]*F[i]'*nz[i]) <= ifo[i]*T[i]'*nx[i] <=  uR_max[i][1] * (ifp[i]*F[i]'*nz[i]), i=1..MR
+  uR_min[i][2] * (ifp[i]*F[i]'*nz[i]) <= ifo[i]*T[i]'*ny[i] <=  uR_max[i][2] * (ifp[i]*F[i]'*nz[i]), i=1..MR
+  uR_min[i][3] * (ifp[i]*F[i]'*nz[i]) <= ifo[i]*T[i]'*nz[i] <=  uR_max[i][3] * (ifp[i]*F[i]'*nz[i]), i=1..MR
+end
