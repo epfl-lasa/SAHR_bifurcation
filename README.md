@@ -1,8 +1,10 @@
-This package contains MATLAB and c++ code (packaged in a ROS node) for the project on:
+This package contains MATLAB and c++ code (packaged in a ROS node for KUKA LWR and in Yarp for simulations on iCub) for the project on:
 
 ## "Learning Dynamical Systems With Bifurcations"
 
 
+
+Please refer to the PDF in paper/DS_formulation.pdf for the formulation of the dynamical system and the optimization.
 
 To view an example and test the MATLAB algorithm, you can use the livescript "demo.mlx" in the MATLAB folder.
 
@@ -22,7 +24,7 @@ By default, the format in the file is:
 
 If the .csv has other formats:
 
-[x_1,x_2,...,x_N,time] -- N (dimensions) should be provided to load data
+[x_1,x_2,...,x_N,time] -- N (dimensions) should be provided to loadData function
 
 [time, x_1, x_2, ..., x_N] -- use flag timeAtBeginning=1 when loading data
 
@@ -31,6 +33,8 @@ If the .csv has other formats:
 
 
 ## PARAMETERS:
+
+Refer to paper/DS_formulation.pdf for a mathematical explanation of the parameters.
 
 rho0 -- radius; size 1
 
