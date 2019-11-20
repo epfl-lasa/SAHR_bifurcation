@@ -1,2 +1,0 @@
-/usr/bin/ar qc libBifurcation.a  CMakeFiles/Bifurcation.dir/lib/bifurcation.cpp.o CMakeFiles/Bifurcation.dir/lib/transformations.cpp.o CMakeFiles/Bifurcation.dir/lib/parameters.cpp.o
-/usr/bin/ranlib libBifurcation.a
