@@ -59,5 +59,5 @@ make -j8
 -- To run the original icub controller:
 
 ```bash
-./main --robot icubSim5
+./main --robot icubSim5 0
 ```
