@@ -10,11 +10,11 @@ control_parameters/
 
 data/
 
-	data_icub/	: Data humanoids (work in progress)
-	data_LfD/	: Data from kinesthetic trajectories
-	data_polishing/	: Data for validation on real robot
-	data_simulation/: Data from KUKA LWR simulations
-	data_toy/	: Additional toy data examples
+	data_icub/		: Data from iCub (humanoid)
+	data_kin/, data_LfD/	: Data from kinesthetic trajectories
+	data_polishing/		: Data for validation on real robot
+	data_simulation/	: Data from KUKA LWR simulations
+	data_toy/		: Additional toy data examples
 	data preparation and plotting functions
 
 
