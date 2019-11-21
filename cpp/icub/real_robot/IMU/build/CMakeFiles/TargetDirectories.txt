@@ -1,3 +1,0 @@
-/home/salman/Dropbox/LASA/IMU/IMU/build/CMakeFiles/rebuild_cache.dir
-/home/salman/Dropbox/LASA/IMU/IMU/build/CMakeFiles/edit_cache.dir
-/home/salman/Dropbox/LASA/IMU/IMU/build/CMakeFiles/main.dir
