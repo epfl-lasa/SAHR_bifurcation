@@ -25,21 +25,6 @@ rigid_bodies:
         pose2d: /vrpn_client_node/Ilaria3/ground_pose
         child_frame_id: /vrpn_client_node/Ilaria3/base_link
         parent_frame_id: world
-    '28':
-        pose: /vrpn_client_node/hum/head/pose
-        pose2d: /vrpn_client_node/hum/head/ground_pose
-        child_frame_id: /vrpn_client_node/hum/head/base_link
-        parent_frame_id: world
-    '43':
-        pose: /vrpn_client_node/Ilaria4/pose
-        pose2d: /vrpn_client_node/Ilaria4/ground_pose
-        child_frame_id: /vrpn_client_node/Ilaria4/base_link
-        parent_frame_id: world
-    '38':
-        pose: /vrpn_client_node/hum/left_elbow/pose
-        pose2d: /vrpn_client_node/hum/left_elbow/ground_pose
-        child_frame_id: /vrpn_client_node/hum/left_elbow/base_link
-        parent_frame_id: world
     # '43':
     #     pose: /vrpn_client_node/Ilaria4/pose
     #     pose2d: /vrpn_client_node/Ilaria4/ground_pose
