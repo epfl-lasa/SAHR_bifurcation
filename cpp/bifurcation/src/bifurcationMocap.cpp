@@ -23,13 +23,13 @@ int Bifurcation::init(){
   _pubDesiredTwist = _n.advertise<geometry_msgs::Twist>("/lwr/joint_controllers/passive_ds_command_vel", 1);
   _pubDesiredOrientation = _n.advertise<geometry_msgs::Quaternion>("/lwr/joint_controllers/passive_ds_command_orient", 1);
 
-  _subOptitrackPose[0] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/robot2/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[0] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/robot_base/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,0),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   _subOptitrackPose[1] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/p1/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,1),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   _subOptitrackPose[2] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/p2/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,2),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
   _subOptitrackPose[3] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/p3/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,3),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  _subOptitrackPose[4] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria4/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,4),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  _subOptitrackPose[5] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/Ilaria5/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,5),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
-  _subOptitrackPose[6] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/hum/left_elbow/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,6),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[4] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/p4/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,4),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[5] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/p5/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,5),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
+  _subOptitrackPose[6] = _n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/p6/pose", 1, boost::bind(&Bifurcation::updateOptitrackPose,this,_1,6),ros::VoidPtr(),ros::TransportHints().reliable().tcpNoDelay());
 
   signal(SIGINT,Bifurcation::stopNode);
 

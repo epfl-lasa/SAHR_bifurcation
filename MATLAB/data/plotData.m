@@ -9,7 +9,7 @@ function [] = plotData(Xdata,Xvel,Rdata,Rvel,T,m,type)
 %           m: number of trajectories
 %           type: decides what to plot; can be 'all', 'cart' or 'sph'
 
-[N,~] = size(Xdata);
+[~,N] = size(Xdata);
 
 if strcmp(type,'all')
     p1 = 2;

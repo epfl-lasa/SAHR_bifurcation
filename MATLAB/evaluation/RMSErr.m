@@ -1,4 +1,4 @@
-function [error] = RMSErr(data,vel,params,Rrot,dt,normalized)
+function [error] = RMSErr(data,vel,params,dt,normalized)
 %RMSErr Prediction Root Mean Square Error to evualuate fit of learned DS
 %   INPUT: 
 %       data, vel : MxN (#points x #dimensions) data trajectories and
@@ -12,8 +12,8 @@ function [error] = RMSErr(data,vel,params,Rrot,dt,normalized)
 [M,N] = size(data);
 dx = zeros(M,N);
 for i=1:M
-    [r,dr] = DS(data(i,:),params,Rrot);
-    x = (Rrot * (hyper2cart(r + dr*dt) ./ params.a)')' - params.x0;
+    [r,dr] = DS(data(i,:),params);
+    x = (params.Rrot * (hyper2cart(r + dr*dt) ./ params.a)')' - params.x0;
     dx(i,:) = (x - data(i,:)) ./ dt ;
 end
 

@@ -1,4 +1,4 @@
-MATLAB code for optimization of the DS.
+##MATLAB code for optimization of the DS.
 
 
 Structure:
@@ -20,8 +20,8 @@ data/
 
 evaluation/
 
-	DMP/		: Functions for DMP comparison. Copyright: Stefan Schaal and Auke Ijspeert
-	evaluation functions
+	DMP/		: Functions for DMP comparison. Copyright "koda" code: Andrej Gams. Copyright old code: Stefan Schaal and Auke Ijspeert
+	evaluation functions (Normalized RMSE and cosine similarity)
 
 
 src/
