@@ -22,7 +22,7 @@ else
     par0 = [par0 1];
 end
 lb = [lb 0.001];
-ub = [ub 5];
+ub = [ub 1000];
 % rho0
 if(isfield(init_params,'rho0') && ~isempty(init_params.rho0))
     par0 = [par0 init_params.rho0];

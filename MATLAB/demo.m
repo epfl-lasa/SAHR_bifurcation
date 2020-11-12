@@ -54,7 +54,7 @@ elseif(ld == 3)
     T = [];
 elseif(ld == 4) % draw your own dataset!
     disp('Draw one (or more) trajectories, save the data to workspace when done.');
-    h = drawData();
+    h = getData();
     uiwait(h);
     if(~exist('traj','var'))
         error('Data was not saved to the workspace.');
